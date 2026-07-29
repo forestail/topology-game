@@ -2,12 +2,14 @@ interface GameHeaderProps {
   seed: string;
   onNewGame: () => void;
   onRestart: () => void;
+  onOpenRules: () => void;
 }
 
 export function GameHeader({
   seed,
   onNewGame,
   onRestart,
+  onOpenRules,
 }: GameHeaderProps) {
   const copySeed = async (): Promise<void> => {
     try {
@@ -37,6 +39,14 @@ export function GameHeader({
       </div>
 
       <div className="header-actions">
+        <button
+          className="help-button"
+          onClick={onOpenRules}
+          aria-label="ルール説明を開く"
+        >
+          <span aria-hidden="true">?</span>
+          <b>ルール</b>
+        </button>
         <div className="seed-control" aria-label={`Current seed ${seed}`}>
           <span className="seed-label">SEED</span>
           <code title={seed}>{seed}</code>

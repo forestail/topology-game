@@ -23,6 +23,7 @@ export const STORAGE_KEYS = {
   lastSeed: "topology:lastSeed",
   stats: "topology:lifetimeStats",
   cpuDifficulty: "topology:cpuDifficulty",
+  tutorialSeen: "topology:tutorialSeen",
 } as const;
 
 export const EMPTY_STATS = {

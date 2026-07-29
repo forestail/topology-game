@@ -52,6 +52,9 @@ claims use a dashed, hatched `C`.
 - Use **Copy** to share a seed and **Reset** to reproduce its board.
 - Use the **CPU** selector above the board to change difficulty. The selection
   applies to the next CPU move and is remembered on this device.
+- Use **ルール** in the header to open the complete Japanese rules guide.
+- A four-step Japanese tutorial opens automatically on the first visit. After
+  dismissal it can be replayed from the rules guide at any time.
 
 CPU levels:
 

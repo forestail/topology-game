@@ -47,6 +47,22 @@ export function saveCpuDifficulty(difficulty: CpuDifficulty): void {
   }
 }
 
+export function hasSeenTutorial(): boolean {
+  try {
+    return window.localStorage.getItem(STORAGE_KEYS.tutorialSeen) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function saveTutorialSeen(): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEYS.tutorialSeen, "true");
+  } catch {
+    // Storage is optional; dismissing still works for the current page.
+  }
+}
+
 export function loadStats(): LifetimeStats {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.stats);

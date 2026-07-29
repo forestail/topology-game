@@ -1,11 +1,19 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { Board } from "./components/Board";
 import { GameHeader } from "./components/GameHeader";
+import { HelpModal, type HelpMode } from "./components/HelpModal";
 import { ScorePanel } from "./components/ScorePanel";
+import {
+  hasSeenTutorial,
+  saveTutorialSeen,
+} from "./game/storage";
 import { useGame } from "./hooks/useGame";
 
 export default function App() {
+  const [helpMode, setHelpMode] = useState<HelpMode | null>(null);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const {
     state,
     stats,
@@ -17,9 +25,34 @@ export default function App() {
     inspectScore,
   } = useGame();
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      if (!hasSeenTutorial()) {
+        setTutorialStep(0);
+        setHelpMode("tutorial");
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const closeHelp = useCallback(() => {
+    if (helpMode === "tutorial") saveTutorialSeen();
+    setHelpMode(null);
+  }, [helpMode]);
+
+  const startTutorial = useCallback(() => {
+    setTutorialStep(0);
+    setHelpMode("tutorial");
+  }, []);
+
   return (
     <main className="app-shell">
-      <GameHeader seed={state.seed} onNewGame={newGame} onRestart={restart} />
+      <GameHeader
+        seed={state.seed}
+        onNewGame={newGame}
+        onRestart={restart}
+        onOpenRules={() => setHelpMode("rules")}
+      />
       <div className="workspace">
         <Board
           nodes={state.nodes}
@@ -44,6 +77,15 @@ export default function App() {
         <span>Topology / Local simulation</span>
         <span>Scoring: base + connected edges + adjacent influence</span>
       </footer>
+      {helpMode && (
+        <HelpModal
+          mode={helpMode}
+          tutorialStep={tutorialStep}
+          onTutorialStepChange={setTutorialStep}
+          onStartTutorial={startTutorial}
+          onClose={closeHelp}
+        />
+      )}
     </main>
   );
 }
