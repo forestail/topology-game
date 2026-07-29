@@ -1,0 +1,30 @@
+import { describe, expect, it } from "vitest";
+import { createInitialGame, gameReducer, isGameFinished } from "./reducer";
+
+describe("gameReducer", () => {
+  it("finishes after all nodes have been claimed", () => {
+    let state = createInitialGame("finish-test");
+
+    for (const node of state.nodes) {
+      state =
+        state.phase === "playerTurn"
+          ? gameReducer(state, { type: "PLAYER_CLAIM", nodeId: node.id })
+          : gameReducer(state, { type: "CPU_CLAIM", nodeId: node.id });
+    }
+
+    expect(isGameFinished(state)).toBe(true);
+    expect(state.winner).not.toBeNull();
+    expect(state.playerSelections).toHaveLength(12);
+    expect(state.cpuSelections).toHaveLength(12);
+  });
+
+  it("ignores player input while the CPU is thinking", () => {
+    let state = createInitialGame("phase-test");
+    state = gameReducer(state, { type: "PLAYER_CLAIM", nodeId: state.nodes[0].id });
+    const unchanged = gameReducer(state, {
+      type: "PLAYER_CLAIM",
+      nodeId: state.nodes[1].id,
+    });
+    expect(unchanged).toBe(state);
+  });
+});
