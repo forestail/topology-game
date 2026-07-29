@@ -5,6 +5,12 @@ export type Phase = "playerTurn" | "cpuThinking" | "finished";
 export type Winner = Turn | "draw" | null;
 export type CpuDifficulty = "easy" | "standard" | "hard";
 export type ScoreCategory = "base" | "connections" | "influence";
+export type TerrainType =
+  | "archipelago"
+  | "hourglass"
+  | "ring"
+  | "spine"
+  | "core";
 
 export interface ScoreInspection {
   owner: Turn;
@@ -56,6 +62,7 @@ export interface GameScore {
 
 export interface GameState {
   seed: string;
+  terrain: TerrainType;
   nodes: GameNode[];
   edges: GameEdge[];
   currentTurn: Turn;

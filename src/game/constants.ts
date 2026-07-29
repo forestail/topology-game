@@ -6,17 +6,14 @@ export const BOARD_PADDING = 54;
 export const MIN_NODE_DISTANCE = 82;
 export const PROXIMITY_DISTANCE = 235;
 export const CPU_DELAY_MS = 400;
+export const HUB_COUNT = 5;
+export const RELAY_COUNT = 2;
+export const BOARD_CANDIDATE_COUNT = 10;
 
 export const NODE_BASE_POINTS = {
   normal: 1,
   hub: 2,
   relay: 1,
-} as const;
-
-export const NODE_TYPE_WEIGHTS = {
-  normal: 0.7,
-  hub: 0.2,
-  relay: 0.1,
 } as const;
 
 export const STORAGE_KEYS = {

@@ -74,9 +74,17 @@ Select the score again, choose **Clear**, or press `Esc` to exit the explanation
 - Game state is centralized in a React `useReducer`.
 - Board generation, scoring, CPU evaluation, persistence, and SVG rendering are
   separate modules.
-- The seeded PRNG makes node positions, types, and graph edges reproducible.
-- Board generation uses a bounded placement loop and a degree-constrained
-  Kruskal pass, then adds nearby tactical edges up to degree four.
+- The seeded PRNG makes node positions, roles, graph edges, and terrain
+  reproducible.
+- Every seed selects one of five strategic terrain families: archipelago,
+  hourglass, ring routes, spine, or core-and-satellites.
+- Ten candidates are generated for that terrain and scored for connectivity,
+  cycles, bottlenecks, junction variety, leaves, and excessive edge length.
+  The strongest candidate becomes the board.
+- Terrain-aware graph construction preserves meaningful bridges and alternate
+  routes while keeping every node connected and degree four or lower.
+- Hub and Relay roles are structural rather than random: Hubs favor central
+  high-degree nodes, while Relays favor bridges and junctions.
 - CPU decisions are deterministic for a game state except for seeded tie
   breaking. It values base points, friendly connections, Relay bonuses, Hub
   influence, and blocking Player connections.

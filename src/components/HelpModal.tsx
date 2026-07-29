@@ -57,6 +57,9 @@ function TutorialContent({ step }: { step: number }) {
         <div className="guide-callout">
           最後に「基本点＋接続点＋影響点」が高い側の勝利です。
         </div>
+        <p className="tutorial-note">
+          盤面は5種類の地形から生成されます。橋・迂回路・中央の要所が毎回変わるため、まず全体の形を観察しましょう。
+        </p>
       </>
     );
   }
@@ -157,6 +160,21 @@ function RulesContent() {
       <section className="rules-section">
         <h3>ノードの種類</h3>
         <NodeTypeGuide />
+      </section>
+
+      <section className="rules-section">
+        <h3>毎回変わる盤面の地形</h3>
+        <p>
+          seedごとに複数の候補盤面を生成し、接続性・分岐・迂回路・ボトルネックを評価して、戦略性の高い1枚を採用します。
+          Hubは接続の中心、Relayは橋や分岐などの要所に置かれます。
+        </p>
+        <ul>
+          <li><strong>群島</strong>：3つの領域を少数の橋が結びます。</li>
+          <li><strong>砂時計</strong>：左右の勢力圏が狭い中央部で接続します。</li>
+          <li><strong>環状路</strong>：迂回路が多く、複数方向から攻められます。</li>
+          <li><strong>背骨</strong>：小さな拠点が連なり、進路の選択が重要です。</li>
+          <li><strong>中央核</strong>：中央の高接続領域と周辺拠点を奪い合います。</li>
+        </ul>
       </section>
 
       <section className="rules-section">

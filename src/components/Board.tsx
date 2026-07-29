@@ -9,6 +9,7 @@ import type {
   Phase,
   ScoreEvidence,
   ScoreInspection,
+  TerrainType,
 } from "../game/types";
 import { EdgeView } from "./EdgeView";
 import { NodeView } from "./NodeView";
@@ -20,11 +21,20 @@ interface BoardProps {
   selectedNodeId: string | null;
   cpuDifficulty: CpuDifficulty;
   scoreInspection: ScoreInspection | null;
+  terrain: TerrainType;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
   onDifficultyChange: (difficulty: CpuDifficulty) => void;
   onClearScoreInspection: () => void;
 }
+
+const TERRAIN_LABELS: Record<TerrainType, string> = {
+  archipelago: "群島 / ARCHIPELAGO",
+  hourglass: "砂時計 / HOURGLASS",
+  ring: "環状路 / RING ROUTES",
+  spine: "背骨 / SPINE",
+  core: "中央核 / CORE",
+};
 
 function evidenceDescription(evidence: ScoreEvidence): string {
   if (evidence.points === 0) {
@@ -52,6 +62,7 @@ export function Board({
   selectedNodeId,
   cpuDifficulty,
   scoreInspection,
+  terrain,
   onClaim,
   onSelect,
   onDifficultyChange,
@@ -107,7 +118,9 @@ export function Board({
     <section className="board-card" aria-labelledby="board-title">
       <div className="board-toolbar">
         <div>
-          <p className="section-kicker">Network map</p>
+          <p className="section-kicker">
+            Network map · {TERRAIN_LABELS[terrain]}
+          </p>
           <h2 id="board-title">Control surface</h2>
         </div>
         <div className="board-controls">

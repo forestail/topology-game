@@ -1,6 +1,44 @@
 import { describe, expect, it } from "vitest";
-import { MAX_DEGREE, NODE_COUNT } from "./constants";
-import { generateBoard } from "./generateBoard";
+import {
+  HUB_COUNT,
+  MAX_DEGREE,
+  MIN_NODE_DISTANCE,
+  NODE_COUNT,
+  RELAY_COUNT,
+} from "./constants";
+import { analyzeTopology, generateBoard } from "./generateBoard";
+import type { GeneratedBoard } from "./generateBoard";
+import type { TerrainType } from "./types";
+
+const TERRAINS: TerrainType[] = [
+  "archipelago",
+  "hourglass",
+  "ring",
+  "spine",
+  "core",
+];
+
+function isConnected(board: GeneratedBoard): boolean {
+  const seen = new Set<string>([board.nodes[0].id]);
+  const queue = [board.nodes[0].id];
+
+  while (queue.length > 0) {
+    const current = queue.shift();
+    for (const edge of board.edges) {
+      const neighbor =
+        edge.sourceId === current
+          ? edge.targetId
+          : edge.targetId === current
+            ? edge.sourceId
+            : null;
+      if (neighbor && !seen.has(neighbor)) {
+        seen.add(neighbor);
+        queue.push(neighbor);
+      }
+    }
+  }
+  return seen.size === NODE_COUNT;
+}
 
 describe("generateBoard", () => {
   it("reproduces the same board from the same seed", () => {
@@ -39,28 +77,135 @@ describe("generateBoard", () => {
   });
 
   it("produces one connected graph", () => {
-    for (let seedIndex = 0; seedIndex < 64; seedIndex += 1) {
+    for (let seedIndex = 0; seedIndex < 128; seedIndex += 1) {
       const board = generateBoard(`connectivity-${seedIndex}`);
-      const seen = new Set<string>([board.nodes[0].id]);
-      const queue = [board.nodes[0].id];
+      expect(isConnected(board)).toBe(true);
+    }
+  });
 
-      while (queue.length > 0) {
-        const current = queue.shift();
-        for (const edge of board.edges) {
-          const neighbor =
-            edge.sourceId === current
-              ? edge.targetId
-              : edge.targetId === current
-                ? edge.sourceId
-                : null;
-          if (neighbor && !seen.has(neighbor)) {
-            seen.add(neighbor);
-            queue.push(neighbor);
-          }
+  it("uses all five terrain families across seeds", () => {
+    const terrains = new Set<TerrainType>();
+    for (let seedIndex = 0; seedIndex < 100; seedIndex += 1) {
+      terrains.add(generateBoard(`terrain-sample-${seedIndex}`).terrain);
+    }
+    expect(terrains).toEqual(new Set(TERRAINS));
+  });
+
+  it("keeps every terrain connected, legible, and structurally typed", () => {
+    for (const terrain of TERRAINS) {
+      const board = generateBoard(`forced-${terrain}`, terrain);
+      const roles = board.nodes.reduce<Record<string, number>>(
+        (counts, node) => ({
+          ...counts,
+          [node.type]: (counts[node.type] ?? 0) + 1,
+        }),
+        {},
+      );
+      const topology = analyzeTopology(board.nodes, board.edges);
+
+      expect(board.terrain).toBe(terrain);
+      expect(isConnected(board)).toBe(true);
+      expect(roles.hub).toBe(HUB_COUNT);
+      expect(roles.relay).toBe(RELAY_COUNT);
+      expect(roles.normal).toBe(NODE_COUNT - HUB_COUNT - RELAY_COUNT);
+      expect(Math.max(...Object.values(topology.degreeByNode))).toBeLessThanOrEqual(
+        MAX_DEGREE,
+      );
+
+      for (let first = 0; first < board.nodes.length; first += 1) {
+        for (let second = first + 1; second < board.nodes.length; second += 1) {
+          expect(
+            Math.hypot(
+              board.nodes[first].x - board.nodes[second].x,
+              board.nodes[first].y - board.nodes[second].y,
+            ),
+          ).toBeGreaterThanOrEqual(MIN_NODE_DISTANCE - 0.2);
         }
       }
-
-      expect(seen.size).toBe(NODE_COUNT);
     }
+  });
+
+  it("gives terrain families distinct strategic topology", () => {
+    const boards = Object.fromEntries(
+      TERRAINS.map((terrain) => [
+        terrain,
+        generateBoard(`profile-${terrain}`, terrain),
+      ]),
+    ) as Record<TerrainType, GeneratedBoard>;
+    const topology = Object.fromEntries(
+      TERRAINS.map((terrain) => [
+        terrain,
+        analyzeTopology(boards[terrain].nodes, boards[terrain].edges),
+      ]),
+    ) as Record<TerrainType, ReturnType<typeof analyzeTopology>>;
+
+    expect(topology.ring.bridgeIds).toHaveLength(0);
+    expect(topology.archipelago.bridgeIds).toHaveLength(2);
+    expect(topology.hourglass.bridgeIds).toHaveLength(2);
+    expect(topology.spine.bridgeIds.length).toBeGreaterThanOrEqual(5);
+    expect(topology.core.bridgeIds).toHaveLength(3);
+    expect(topology.ring.cycleCount).toBeGreaterThan(topology.spine.cycleCount);
+  });
+
+  it("preserves each terrain's route and bottleneck profile across seeds", () => {
+    const expected = {
+      archipelago: { edges: 32, bridges: 2 },
+      hourglass: { edges: 31, bridges: 2 },
+      ring: { edges: 35, bridges: 0 },
+      spine: { edges: 30, bridges: 5 },
+      core: { edges: 33, bridges: 3 },
+    } satisfies Record<TerrainType, { edges: number; bridges: number }>;
+
+    for (const terrain of TERRAINS) {
+      for (let seedIndex = 0; seedIndex < 12; seedIndex += 1) {
+        const board = generateBoard(
+          `profile-stress-${terrain}-${seedIndex}`,
+          terrain,
+        );
+        const topology = analyzeTopology(board.nodes, board.edges);
+        expect(board.edges).toHaveLength(expected[terrain].edges);
+        expect(topology.bridgeIds).toHaveLength(expected[terrain].bridges);
+        expect(isConnected(board)).toBe(true);
+      }
+    }
+  });
+
+  it("places a Relay on a bottleneck whenever the terrain has bridges", () => {
+    for (const terrain of TERRAINS.filter((value) => value !== "ring")) {
+      const board = generateBoard(`relay-${terrain}`, terrain);
+      const bridgeIds = new Set(
+        analyzeTopology(board.nodes, board.edges).bridgeIds,
+      );
+      const relayIds = new Set(
+        board.nodes
+          .filter((node) => node.type === "relay")
+          .map((node) => node.id),
+      );
+      const relayTouchesBridge = board.edges.some(
+        (edge) =>
+          bridgeIds.has(edge.id) &&
+          (relayIds.has(edge.sourceId) || relayIds.has(edge.targetId)),
+      );
+      expect(relayTouchesBridge).toBe(true);
+    }
+  });
+
+  it("produces many distinct boards, not merely five fixed templates", () => {
+    const fingerprints = new Set<string>();
+    for (let seedIndex = 0; seedIndex < 60; seedIndex += 1) {
+      const board = generateBoard(`variety-${seedIndex}`);
+      fingerprints.add(
+        JSON.stringify({
+          terrain: board.terrain,
+          nodes: board.nodes.map((node) => [
+            Math.round(node.x / 20),
+            Math.round(node.y / 20),
+            node.type,
+          ]),
+          edges: board.edges.map((edge) => edge.id),
+        }),
+      );
+    }
+    expect(fingerprints.size).toBeGreaterThanOrEqual(58);
   });
 });

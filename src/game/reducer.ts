@@ -59,9 +59,10 @@ export function createInitialGame(
   seed: string,
   cpuDifficulty: CpuDifficulty = "standard",
 ): GameState {
-  const { nodes, edges } = generateBoard(seed);
+  const { nodes, edges, terrain } = generateBoard(seed);
   return {
     seed,
+    terrain,
     nodes,
     edges,
     currentTurn: "player",

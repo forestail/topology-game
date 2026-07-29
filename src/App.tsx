@@ -61,6 +61,7 @@ export default function App() {
           selectedNodeId={state.selectedNodeId}
           cpuDifficulty={state.cpuDifficulty}
           scoreInspection={state.scoreInspection}
+          terrain={state.terrain}
           onClaim={claimNode}
           onSelect={selectNode}
           onDifficultyChange={setCpuDifficulty}
