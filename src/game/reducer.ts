@@ -7,6 +7,7 @@ import type {
   Owner,
   Turn,
   Winner,
+  CpuDifficulty,
 } from "./types";
 
 function determineWinner(player: number, cpu: number): Winner {
@@ -53,7 +54,10 @@ function claimNode(
   };
 }
 
-export function createInitialGame(seed: string): GameState {
+export function createInitialGame(
+  seed: string,
+  cpuDifficulty: CpuDifficulty = "standard",
+): GameState {
   const { nodes, edges } = generateBoard(seed);
   return {
     seed,
@@ -67,6 +71,7 @@ export function createInitialGame(seed: string): GameState {
     score: calculateScore(nodes, edges),
     moveHistory: [],
     selectedNodeId: null,
+    cpuDifficulty,
   };
 }
 
@@ -81,11 +86,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ? claimNode(state, action.nodeId, "cpu")
         : state;
     case "NEW_GAME":
-      return createInitialGame(action.seed);
+      return createInitialGame(action.seed, state.cpuDifficulty);
     case "RESTART":
-      return createInitialGame(state.seed);
+      return createInitialGame(state.seed, state.cpuDifficulty);
     case "SELECT_NODE":
       return { ...state, selectedNodeId: action.nodeId };
+    case "SET_CPU_DIFFICULTY":
+      return { ...state, cpuDifficulty: action.difficulty };
     default:
       return state;
   }

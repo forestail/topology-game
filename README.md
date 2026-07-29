@@ -50,6 +50,15 @@ claims use a dashed, hatched `C`.
 - Press `N` for a new random game.
 - Press `R` to restart the current seed.
 - Use **Copy** to share a seed and **Reset** to reproduce its board.
+- Use the **CPU** selector above the board to change difficulty. The selection
+  applies to the next CPU move and is remembered on this device.
+
+CPU levels:
+
+- **Easy** varies its choice among several strong candidates.
+- **Standard** uses the original weighted positional evaluation.
+- **Hard** compares the real projected score and anticipates the Player's
+  strongest immediate reply.
 
 ## Design notes
 
@@ -62,8 +71,8 @@ claims use a dashed, hatched `C`.
 - CPU decisions are deterministic for a game state except for seeded tie
   breaking. It values base points, friendly connections, Relay bonuses, Hub
   influence, and blocking Player connections.
-- Only the current seed and lifetime results are stored in `localStorage`.
-  Storage failures never prevent play.
+- The current seed, CPU difficulty, and lifetime results are stored in
+  `localStorage`. Storage failures never prevent play.
 - The interface responds down to 320 px widths and switches with the operating
   system’s light/dark preference.
 

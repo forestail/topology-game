@@ -1,5 +1,5 @@
 import { EMPTY_STATS, STORAGE_KEYS } from "./constants";
-import type { LifetimeStats, Winner } from "./types";
+import type { CpuDifficulty, LifetimeStats, Winner } from "./types";
 
 function isLifetimeStats(value: unknown): value is LifetimeStats {
   if (!value || typeof value !== "object") return false;
@@ -25,6 +25,25 @@ export function saveLastSeed(seed: string): void {
     window.localStorage.setItem(STORAGE_KEYS.lastSeed, seed);
   } catch {
     // Storage is optional; the active game remains fully functional.
+  }
+}
+
+export function loadCpuDifficulty(): CpuDifficulty {
+  try {
+    const value = window.localStorage.getItem(STORAGE_KEYS.cpuDifficulty);
+    return value === "easy" || value === "hard" || value === "standard"
+      ? value
+      : "standard";
+  } catch {
+    return "standard";
+  }
+}
+
+export function saveCpuDifficulty(difficulty: CpuDifficulty): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEYS.cpuDifficulty, difficulty);
+  } catch {
+    // Storage is optional; the active selection remains usable this session.
   }
 }
 

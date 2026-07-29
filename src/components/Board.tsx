@@ -1,7 +1,12 @@
 import { useMemo, useRef } from "react";
 import { BOARD_HEIGHT, BOARD_WIDTH } from "../game/constants";
 import { getNodeMap } from "../game/selectors";
-import type { GameEdge, GameNode, Phase } from "../game/types";
+import type {
+  CpuDifficulty,
+  GameEdge,
+  GameNode,
+  Phase,
+} from "../game/types";
 import { EdgeView } from "./EdgeView";
 import { NodeView } from "./NodeView";
 
@@ -10,8 +15,10 @@ interface BoardProps {
   edges: GameEdge[];
   phase: Phase;
   selectedNodeId: string | null;
+  cpuDifficulty: CpuDifficulty;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
+  onDifficultyChange: (difficulty: CpuDifficulty) => void;
 }
 
 export function Board({
@@ -19,8 +26,10 @@ export function Board({
   edges,
   phase,
   selectedNodeId,
+  cpuDifficulty,
   onClaim,
   onSelect,
+  onDifficultyChange,
 }: BoardProps) {
   const nodeMap = useMemo(() => getNodeMap(nodes), [nodes]);
   const refs = useRef(new Map<string, SVGGElement>());
@@ -59,18 +68,34 @@ export function Board({
           <p className="section-kicker">Network map</p>
           <h2 id="board-title">Control surface</h2>
         </div>
-        <span
-          className={`phase-pill phase-${phase}`}
-          role="status"
-          aria-live="polite"
-        >
-          <span className="status-dot" />
-          {phase === "playerTurn"
-            ? "Your turn"
-            : phase === "cpuThinking"
-              ? "CPU evaluating"
-              : "Analysis complete"}
-        </span>
+        <div className="board-controls">
+          <label className="difficulty-control">
+            <span>CPU</span>
+            <select
+              value={cpuDifficulty}
+              onChange={(event) =>
+                onDifficultyChange(event.target.value as CpuDifficulty)
+              }
+              aria-label="CPU difficulty"
+            >
+              <option value="easy">Easy</option>
+              <option value="standard">Standard</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+          <span
+            className={`phase-pill phase-${phase}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span className="status-dot" />
+            {phase === "playerTurn"
+              ? "Your turn"
+              : phase === "cpuThinking"
+                ? "CPU evaluating"
+                : "Analysis complete"}
+          </span>
+        </div>
       </div>
 
       <div className="board-shell">

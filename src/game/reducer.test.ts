@@ -27,4 +27,16 @@ describe("gameReducer", () => {
     });
     expect(unchanged).toBe(state);
   });
+
+  it("keeps the selected CPU difficulty when restarting", () => {
+    let state = createInitialGame("difficulty-test");
+    state = gameReducer(state, {
+      type: "SET_CPU_DIFFICULTY",
+      difficulty: "hard",
+    });
+    state = gameReducer(state, { type: "RESTART" });
+
+    expect(state.cpuDifficulty).toBe("hard");
+    expect(state.phase).toBe("playerTurn");
+  });
 });

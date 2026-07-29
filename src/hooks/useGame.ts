@@ -6,12 +6,14 @@ import { chooseCpuMove } from "../game/cpu";
 import { createSeededRandom, createSeed } from "../game/random";
 import { createInitialGame, gameReducer } from "../game/reducer";
 import {
+  loadCpuDifficulty,
   loadLastSeed,
   loadStats,
   recordGame,
+  saveCpuDifficulty,
   saveLastSeed,
 } from "../game/storage";
-import type { LifetimeStats } from "../game/types";
+import type { CpuDifficulty, LifetimeStats } from "../game/types";
 
 const BOOT_SEED = "topology-boot";
 const EMPTY_SESSION_STATS: LifetimeStats = {
@@ -39,6 +41,10 @@ export function useGame() {
           ? savedSeed
           : createSeed();
       setStats(loadStats());
+      dispatch({
+        type: "SET_CPU_DIFFICULTY",
+        difficulty: loadCpuDifficulty(),
+      });
       dispatch({ type: "NEW_GAME", seed });
       setStorageReady(true);
     }, 0);
@@ -52,18 +58,35 @@ export function useGame() {
   }, [state.seed, storageReady]);
 
   useEffect(() => {
+    if (!storageReady) return;
+    saveCpuDifficulty(state.cpuDifficulty);
+  }, [state.cpuDifficulty, storageReady]);
+
+  useEffect(() => {
     if (state.phase !== "cpuThinking") return;
 
     const timer = window.setTimeout(() => {
       const random = createSeededRandom(
         `${state.seed}:cpu:${state.moveHistory.length}`,
       );
-      const nodeId = chooseCpuMove(state.nodes, state.edges, random);
+      const nodeId = chooseCpuMove(
+        state.nodes,
+        state.edges,
+        random,
+        state.cpuDifficulty,
+      );
       if (nodeId) dispatch({ type: "CPU_CLAIM", nodeId });
     }, CPU_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [state.edges, state.moveHistory.length, state.nodes, state.phase, state.seed]);
+  }, [
+    state.cpuDifficulty,
+    state.edges,
+    state.moveHistory.length,
+    state.nodes,
+    state.phase,
+    state.seed,
+  ]);
 
   useEffect(() => {
     if (
@@ -120,6 +143,8 @@ export function useGame() {
     claimNode,
     newGame,
     restart,
+    setCpuDifficulty: (difficulty: CpuDifficulty) =>
+      dispatch({ type: "SET_CPU_DIFFICULTY", difficulty }),
     selectNode: (nodeId: string | null) =>
       dispatch({ type: "SELECT_NODE", nodeId }),
   };

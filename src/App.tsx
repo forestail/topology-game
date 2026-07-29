@@ -6,7 +6,15 @@ import { ScorePanel } from "./components/ScorePanel";
 import { useGame } from "./hooks/useGame";
 
 export default function App() {
-  const { state, stats, claimNode, newGame, restart, selectNode } = useGame();
+  const {
+    state,
+    stats,
+    claimNode,
+    newGame,
+    restart,
+    selectNode,
+    setCpuDifficulty,
+  } = useGame();
 
   return (
     <main className="app-shell">
@@ -17,8 +25,10 @@ export default function App() {
           edges={state.edges}
           phase={state.phase}
           selectedNodeId={state.selectedNodeId}
+          cpuDifficulty={state.cpuDifficulty}
           onClaim={claimNode}
           onSelect={selectNode}
+          onDifficultyChange={setCpuDifficulty}
         />
         <ScorePanel state={state} stats={stats} />
       </div>

@@ -3,6 +3,7 @@ export type NodeType = "normal" | "hub" | "relay";
 export type Turn = Exclude<Owner, null>;
 export type Phase = "playerTurn" | "cpuThinking" | "finished";
 export type Winner = Turn | "draw" | null;
+export type CpuDifficulty = "easy" | "standard" | "hard";
 
 export interface GameNode {
   id: string;
@@ -48,6 +49,7 @@ export interface GameState {
   score: GameScore;
   moveHistory: Move[];
   selectedNodeId: string | null;
+  cpuDifficulty: CpuDifficulty;
 }
 
 export interface LifetimeStats {
@@ -62,4 +64,5 @@ export type GameAction =
   | { type: "CPU_CLAIM"; nodeId: string }
   | { type: "NEW_GAME"; seed: string }
   | { type: "RESTART" }
-  | { type: "SELECT_NODE"; nodeId: string | null };
+  | { type: "SELECT_NODE"; nodeId: string | null }
+  | { type: "SET_CPU_DIFFICULTY"; difficulty: CpuDifficulty };

@@ -1,11 +1,33 @@
 import { NODE_BASE_POINTS } from "./constants";
-import { connectionValue } from "./scoring";
-import type { GameEdge, GameNode } from "./types";
+import { calculateScore, connectionValue } from "./scoring";
+import type { CpuDifficulty, GameEdge, GameNode, Turn } from "./types";
 import type { RandomSource } from "./random";
 
 export interface CpuEvaluation {
   nodeId: string;
   value: number;
+}
+
+function claimNode(
+  nodes: GameNode[],
+  nodeId: string,
+  owner: Turn,
+): GameNode[] {
+  return nodes.map((node) =>
+    node.id === nodeId ? { ...node, owner } : node,
+  );
+}
+
+function pickBest(
+  evaluations: CpuEvaluation[],
+  random: RandomSource,
+): string | null {
+  if (evaluations.length === 0) return null;
+  const bestValue = Math.max(...evaluations.map((item) => item.value));
+  const bestMoves = evaluations.filter(
+    (item) => Math.abs(item.value - bestValue) < Number.EPSILON,
+  );
+  return bestMoves[Math.floor(random() * bestMoves.length)]?.nodeId ?? null;
 }
 
 export function evaluateCpuMoves(
@@ -54,17 +76,68 @@ export function evaluateCpuMoves(
     });
 }
 
+export function evaluateHardCpuMoves(
+  nodes: GameNode[],
+  edges: GameEdge[],
+): CpuEvaluation[] {
+  const heuristicById = new Map(
+    evaluateCpuMoves(nodes, edges).map((item) => [item.nodeId, item.value]),
+  );
+
+  return nodes
+    .filter((node) => node.owner === null)
+    .map((candidate) => {
+      const afterCpu = claimNode(nodes, candidate.id, "cpu");
+      const immediateScore = calculateScore(afterCpu, edges);
+      const immediateMargin =
+        immediateScore.cpu.total - immediateScore.player.total;
+      const replies = afterCpu.filter((node) => node.owner === null);
+
+      const worstReplyMargin =
+        replies.length === 0
+          ? immediateMargin
+          : Math.min(
+              ...replies.map((reply) => {
+                const afterReply = claimNode(afterCpu, reply.id, "player");
+                const replyScore = calculateScore(afterReply, edges);
+                return replyScore.cpu.total - replyScore.player.total;
+              }),
+            );
+
+      return {
+        nodeId: candidate.id,
+        value:
+          immediateMargin * 1.25 +
+          worstReplyMargin * 3 +
+          (heuristicById.get(candidate.id) ?? 0) * 0.25,
+      };
+    });
+}
+
 export function chooseCpuMove(
   nodes: GameNode[],
   edges: GameEdge[],
   random: RandomSource,
+  difficulty: CpuDifficulty = "standard",
 ): string | null {
   const evaluations = evaluateCpuMoves(nodes, edges);
   if (evaluations.length === 0) return null;
 
-  const bestValue = Math.max(...evaluations.map((item) => item.value));
-  const bestMoves = evaluations.filter(
-    (item) => Math.abs(item.value - bestValue) < Number.EPSILON,
-  );
-  return bestMoves[Math.floor(random() * bestMoves.length)]?.nodeId ?? null;
+  if (difficulty === "easy") {
+    const ranked = [...evaluations].sort(
+      (first, second) =>
+        second.value - first.value || first.nodeId.localeCompare(second.nodeId),
+    );
+    const poolSize = Math.min(
+      ranked.length,
+      Math.max(2, Math.ceil(ranked.length * 0.25)),
+    );
+    return ranked[Math.floor(random() * poolSize)]?.nodeId ?? null;
+  }
+
+  if (difficulty === "hard") {
+    return pickBest(evaluateHardCpuMoves(nodes, edges), random);
+  }
+
+  return pickBest(evaluations, random);
 }
