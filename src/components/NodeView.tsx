@@ -1,10 +1,16 @@
 import { NODE_BASE_POINTS } from "../game/constants";
-import type { GameNode } from "../game/types";
+import type { GameNode, ScoreCategory, Turn } from "../game/types";
 
 interface NodeViewProps {
   node: GameNode;
   disabled: boolean;
   selected: boolean;
+  scoreCategory: ScoreCategory | null;
+  scoreOwner: Turn | null;
+  scoreHighlighted: boolean;
+  scoreDimmed: boolean;
+  influenceTarget: boolean;
+  influenceContributor: boolean;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
   onMoveFocus: (node: GameNode, key: string) => void;
@@ -15,6 +21,12 @@ export function NodeView({
   node,
   disabled,
   selected,
+  scoreCategory,
+  scoreOwner,
+  scoreHighlighted,
+  scoreDimmed,
+  influenceTarget,
+  influenceContributor,
   onClaim,
   onSelect,
   onMoveFocus,
@@ -38,13 +50,16 @@ export function NodeView({
         `node-${node.owner ?? "open"}`,
         available ? "node-available" : "",
         selected ? "node-selected" : "",
+        scoreHighlighted ? "node-score-highlight" : "",
+        scoreDimmed ? "node-score-dimmed" : "",
+        scoreOwner ? `node-score-owner-${scoreOwner}` : "",
       ]
         .filter(Boolean)
         .join(" ")}
       role="button"
       tabIndex={available ? 0 : -1}
       aria-disabled={!available}
-      aria-label={`${node.id}, ${typeLabel}, ${NODE_BASE_POINTS[node.type]} base points, ${ownerLabel}`}
+      aria-label={`${node.id}, ${typeLabel}, ${NODE_BASE_POINTS[node.type]} base points, ${ownerLabel}${scoreHighlighted ? ", highlighted score evidence" : ""}`}
       onClick={activate}
       onFocus={() => onSelect(node.id)}
       onBlur={() => onSelect(null)}
@@ -60,6 +75,34 @@ export function NodeView({
         }
       }}
     >
+      {scoreHighlighted &&
+        scoreCategory !== "influence" && (
+          <circle
+            className={`score-evidence-ring score-evidence-${scoreCategory}`}
+            cx={node.x}
+            cy={node.y}
+            r="26"
+            aria-hidden="true"
+          />
+        )}
+      {influenceContributor && (
+        <circle
+          className="score-evidence-ring score-evidence-contributor"
+          cx={node.x}
+          cy={node.y}
+          r="25"
+          aria-hidden="true"
+        />
+      )}
+      {influenceTarget && (
+        <circle
+          className="score-evidence-ring score-evidence-target"
+          cx={node.x}
+          cy={node.y}
+          r="29"
+          aria-hidden="true"
+        />
+      )}
       <circle className="node-hit-area" cx={node.x} cy={node.y} r="29" />
 
       {node.type === "relay" ? (

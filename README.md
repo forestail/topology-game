@@ -60,6 +60,12 @@ CPU levels:
 - **Hard** compares the real projected score and anticipates the Player's
   strongest immediate reply.
 
+To understand a score, select the Player or CPU value beside **Base nodes**,
+**Connections**, or **Influence** in the Score ledger. The Network map dims
+unrelated locations and highlights the contributing nodes and links. Influence
+uses dashed rings for scoring targets and solid rings for contributing nodes.
+Select the score again, choose **Clear**, or press `Esc` to exit the explanation.
+
 ## Design notes
 
 - Game state is centralized in a React `useReducer`.

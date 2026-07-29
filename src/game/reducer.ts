@@ -51,6 +51,7 @@ function claimNode(
     score,
     moveHistory,
     selectedNodeId: null,
+    scoreInspection: null,
   };
 }
 
@@ -72,6 +73,7 @@ export function createInitialGame(
     moveHistory: [],
     selectedNodeId: null,
     cpuDifficulty,
+    scoreInspection: null,
   };
 }
 
@@ -93,6 +95,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       return { ...state, selectedNodeId: action.nodeId };
     case "SET_CPU_DIFFICULTY":
       return { ...state, cpuDifficulty: action.difficulty };
+    case "SET_SCORE_INSPECTION":
+      return { ...state, scoreInspection: action.inspection };
     default:
       return state;
   }

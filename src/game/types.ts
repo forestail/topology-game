@@ -4,6 +4,23 @@ export type Turn = Exclude<Owner, null>;
 export type Phase = "playerTurn" | "cpuThinking" | "finished";
 export type Winner = Turn | "draw" | null;
 export type CpuDifficulty = "easy" | "standard" | "hard";
+export type ScoreCategory = "base" | "connections" | "influence";
+
+export interface ScoreInspection {
+  owner: Turn;
+  category: ScoreCategory;
+}
+
+export interface ScoreEvidence {
+  owner: Turn;
+  category: ScoreCategory;
+  points: number;
+  itemCount: number;
+  nodeIds: string[];
+  edgeIds: string[];
+  targetNodeIds: string[];
+  contributorNodeIds: string[];
+}
 
 export interface GameNode {
   id: string;
@@ -50,6 +67,7 @@ export interface GameState {
   moveHistory: Move[];
   selectedNodeId: string | null;
   cpuDifficulty: CpuDifficulty;
+  scoreInspection: ScoreInspection | null;
 }
 
 export interface LifetimeStats {
@@ -65,4 +83,5 @@ export type GameAction =
   | { type: "NEW_GAME"; seed: string }
   | { type: "RESTART" }
   | { type: "SELECT_NODE"; nodeId: string | null }
-  | { type: "SET_CPU_DIFFICULTY"; difficulty: CpuDifficulty };
+  | { type: "SET_CPU_DIFFICULTY"; difficulty: CpuDifficulty }
+  | { type: "SET_SCORE_INSPECTION"; inspection: ScoreInspection | null };

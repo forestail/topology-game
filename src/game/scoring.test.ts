@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateScore } from "./scoring";
+import { calculateScore, getScoreEvidence } from "./scoring";
 import type { GameEdge, GameNode } from "./types";
 
 function node(
@@ -64,5 +64,58 @@ describe("calculateScore", () => {
     );
     expect(score.player.influence).toBe(0);
     expect(score.cpu.influence).toBe(0);
+  });
+
+  it("identifies the nodes behind base points", () => {
+    const nodes = [
+      node("hub", "hub", "player"),
+      node("normal", "normal", "player"),
+      node("cpu", "normal", "cpu"),
+    ];
+    const evidence = getScoreEvidence(nodes, [], "player", "base");
+
+    expect(evidence.points).toBe(3);
+    expect(evidence.itemCount).toBe(2);
+    expect(evidence.nodeIds).toEqual(["hub", "normal"]);
+  });
+
+  it("identifies scoring connections and Relay value", () => {
+    const nodes = [
+      node("relay", "relay", "player"),
+      node("normal", "normal", "player"),
+      node("cpu", "normal", "cpu"),
+    ];
+    const edges = [edge("relay", "normal"), edge("normal", "cpu")];
+    const evidence = getScoreEvidence(
+      nodes,
+      edges,
+      "player",
+      "connections",
+    );
+
+    expect(evidence.points).toBe(2);
+    expect(evidence.itemCount).toBe(1);
+    expect(evidence.edgeIds).toEqual(["relay-normal"]);
+    expect(evidence.nodeIds).toEqual(["relay", "normal"]);
+  });
+
+  it("identifies influence targets, contributors, and their links", () => {
+    const nodes = [
+      node("hub", "hub", "player"),
+      node("target", "normal", null),
+      node("cpu", "normal", "cpu"),
+    ];
+    const edges = [edge("hub", "target"), edge("cpu", "target")];
+    const evidence = getScoreEvidence(
+      nodes,
+      edges,
+      "player",
+      "influence",
+    );
+
+    expect(evidence.points).toBe(1);
+    expect(evidence.targetNodeIds).toEqual(["target"]);
+    expect(evidence.contributorNodeIds).toEqual(["hub"]);
+    expect(evidence.edgeIds).toEqual(["hub-target"]);
   });
 });

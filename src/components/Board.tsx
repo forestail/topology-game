@@ -1,11 +1,14 @@
 import { useMemo, useRef } from "react";
 import { BOARD_HEIGHT, BOARD_WIDTH } from "../game/constants";
+import { getScoreEvidence } from "../game/scoring";
 import { getNodeMap } from "../game/selectors";
 import type {
   CpuDifficulty,
   GameEdge,
   GameNode,
   Phase,
+  ScoreEvidence,
+  ScoreInspection,
 } from "../game/types";
 import { EdgeView } from "./EdgeView";
 import { NodeView } from "./NodeView";
@@ -16,10 +19,31 @@ interface BoardProps {
   phase: Phase;
   selectedNodeId: string | null;
   cpuDifficulty: CpuDifficulty;
+  scoreInspection: ScoreInspection | null;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
   onDifficultyChange: (difficulty: CpuDifficulty) => void;
+  onClearScoreInspection: () => void;
 }
+
+function evidenceDescription(evidence: ScoreEvidence): string {
+  if (evidence.points === 0) {
+    return "No map locations currently contribute to this score.";
+  }
+  if (evidence.category === "base") {
+    return `${evidence.itemCount} owned nodes total ${evidence.points} points. Hubs count 2; Normal and Relay count 1.`;
+  }
+  if (evidence.category === "connections") {
+    return `${evidence.itemCount} same-owner links total ${evidence.points} points. Links touching a Relay count 2.`;
+  }
+  return `${evidence.itemCount} target nodes score 1 point each. Dashed rings are targets; solid rings supply influence.`;
+}
+
+const CATEGORY_LABELS = {
+  base: "Base nodes",
+  connections: "Connections",
+  influence: "Influence",
+} as const;
 
 export function Board({
   nodes,
@@ -27,11 +51,29 @@ export function Board({
   phase,
   selectedNodeId,
   cpuDifficulty,
+  scoreInspection,
   onClaim,
   onSelect,
   onDifficultyChange,
+  onClearScoreInspection,
 }: BoardProps) {
   const nodeMap = useMemo(() => getNodeMap(nodes), [nodes]);
+  const evidence = useMemo(
+    () =>
+      scoreInspection
+        ? getScoreEvidence(
+            nodes,
+            edges,
+            scoreInspection.owner,
+            scoreInspection.category,
+          )
+        : null,
+    [edges, nodes, scoreInspection],
+  );
+  const evidenceNodeIds = new Set(evidence?.nodeIds ?? []);
+  const evidenceEdgeIds = new Set(evidence?.edgeIds ?? []);
+  const targetNodeIds = new Set(evidence?.targetNodeIds ?? []);
+  const contributorNodeIds = new Set(evidence?.contributorNodeIds ?? []);
   const refs = useRef(new Map<string, SVGGElement>());
 
   const moveFocus = (current: GameNode, key: string): void => {
@@ -98,6 +140,32 @@ export function Board({
         </div>
       </div>
 
+      {evidence && (
+        <div
+          className={`score-inspection-bar inspection-${evidence.owner}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="inspection-owner" aria-hidden="true">
+            {evidence.owner === "player" ? "P" : "C"}
+          </span>
+          <div>
+            <strong>
+              {evidence.owner === "player" ? "Player" : "CPU"} ·{" "}
+              {CATEGORY_LABELS[evidence.category]} · {evidence.points} pts
+            </strong>
+            <span>{evidenceDescription(evidence)}</span>
+          </div>
+          <button
+            type="button"
+            onClick={onClearScoreInspection}
+            aria-label="Clear score evidence highlight"
+          >
+            Clear
+          </button>
+        </div>
+      )}
+
       <div className="board-shell">
         <svg
           className="board"
@@ -126,6 +194,9 @@ export function Board({
                   edge={edge}
                   source={source}
                   target={target}
+                  highlighted={evidenceEdgeIds.has(edge.id)}
+                  dimmed={Boolean(evidence) && !evidenceEdgeIds.has(edge.id)}
+                  highlightOwner={evidence?.owner ?? null}
                 />
               ) : null;
             })}
@@ -137,6 +208,12 @@ export function Board({
                 node={node}
                 disabled={phase !== "playerTurn"}
                 selected={selectedNodeId === node.id}
+                scoreCategory={evidence?.category ?? null}
+                scoreOwner={evidence?.owner ?? null}
+                scoreHighlighted={evidenceNodeIds.has(node.id)}
+                scoreDimmed={Boolean(evidence) && !evidenceNodeIds.has(node.id)}
+                influenceTarget={targetNodeIds.has(node.id)}
+                influenceContributor={contributorNodeIds.has(node.id)}
                 onClaim={onClaim}
                 onSelect={onSelect}
                 onMoveFocus={moveFocus}

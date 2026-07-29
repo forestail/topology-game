@@ -39,4 +39,22 @@ describe("gameReducer", () => {
     expect(state.cpuDifficulty).toBe("hard");
     expect(state.phase).toBe("playerTurn");
   });
+
+  it("stores score inspection and clears it after a move", () => {
+    let state = createInitialGame("inspection-test");
+    state = gameReducer(state, {
+      type: "SET_SCORE_INSPECTION",
+      inspection: { owner: "player", category: "base" },
+    });
+    expect(state.scoreInspection).toEqual({
+      owner: "player",
+      category: "base",
+    });
+
+    state = gameReducer(state, {
+      type: "PLAYER_CLAIM",
+      nodeId: state.nodes[0].id,
+    });
+    expect(state.scoreInspection).toBeNull();
+  });
 });

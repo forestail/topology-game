@@ -14,6 +14,7 @@ export default function App() {
     restart,
     selectNode,
     setCpuDifficulty,
+    inspectScore,
   } = useGame();
 
   return (
@@ -26,11 +27,18 @@ export default function App() {
           phase={state.phase}
           selectedNodeId={state.selectedNodeId}
           cpuDifficulty={state.cpuDifficulty}
+          scoreInspection={state.scoreInspection}
           onClaim={claimNode}
           onSelect={selectNode}
           onDifficultyChange={setCpuDifficulty}
+          onClearScoreInspection={() => inspectScore(null)}
         />
-        <ScorePanel state={state} stats={stats} />
+        <ScorePanel
+          state={state}
+          stats={stats}
+          inspection={state.scoreInspection}
+          onInspect={inspectScore}
+        />
       </div>
       <footer>
         <span>Topology / Local simulation</span>

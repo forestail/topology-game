@@ -1,10 +1,57 @@
-import type { GameState, LifetimeStats } from "../game/types";
+import type {
+  GameState,
+  LifetimeStats,
+  ScoreCategory,
+  ScoreInspection,
+  Turn,
+} from "../game/types";
 import { getRemainingCount } from "../game/selectors";
 import { Legend } from "./Legend";
 
 interface ScorePanelProps {
   state: GameState;
   stats: LifetimeStats;
+  inspection: ScoreInspection | null;
+  onInspect: (inspection: ScoreInspection | null) => void;
+}
+
+const SCORE_ROWS: Array<{ category: ScoreCategory; label: string }> = [
+  { category: "base", label: "Base nodes" },
+  { category: "connections", label: "Connections" },
+  { category: "influence", label: "Influence" },
+];
+
+interface ScoreEvidenceButtonProps {
+  owner: Turn;
+  category: ScoreCategory;
+  label: string;
+  value: number;
+  active: boolean;
+  onInspect: (inspection: ScoreInspection | null) => void;
+}
+
+function ScoreEvidenceButton({
+  owner,
+  category,
+  label,
+  value,
+  active,
+  onInspect,
+}: ScoreEvidenceButtonProps) {
+  const ownerLabel = owner === "player" ? "Player" : "CPU";
+
+  return (
+    <button
+      className={`ledger-score ledger-score-${owner}${active ? " is-active" : ""}`}
+      type="button"
+      aria-pressed={active}
+      aria-label={`${ownerLabel} ${label}: ${value} points. Show evidence on the network map.`}
+      onClick={() => onInspect(active ? null : { owner, category })}
+    >
+      <span>{owner === "player" ? "P" : "C"}</span>
+      <strong>{value}</strong>
+    </button>
+  );
 }
 
 function outcomeCopy(state: GameState): string {
@@ -15,7 +62,12 @@ function outcomeCopy(state: GameState): string {
     : "CPU controls the stronger network.";
 }
 
-export function ScorePanel({ state, stats }: ScorePanelProps) {
+export function ScorePanel({
+  state,
+  stats,
+  inspection,
+  onInspect,
+}: ScorePanelProps) {
   const remaining = getRemainingCount(state);
   const claimed = state.playerSelections.length + state.cpuSelections.length;
   const progress = (claimed / state.nodes.length) * 100;
@@ -76,27 +128,30 @@ export function ScorePanel({ state, stats }: ScorePanelProps) {
       <section className="panel-section">
         <div className="section-heading">
           <h3>Score ledger</h3>
-          <span>P / C</span>
+          <span>Select a score</span>
         </div>
         <dl className="ledger">
-          <div>
-            <dt>Base nodes</dt>
-            <dd>
-              {state.score.player.base} / {state.score.cpu.base}
-            </dd>
-          </div>
-          <div>
-            <dt>Connections</dt>
-            <dd>
-              {state.score.player.connections} / {state.score.cpu.connections}
-            </dd>
-          </div>
-          <div>
-            <dt>Influence</dt>
-            <dd>
-              {state.score.player.influence} / {state.score.cpu.influence}
-            </dd>
-          </div>
+          {SCORE_ROWS.map(({ category, label }) => (
+            <div key={category}>
+              <dt>{label}</dt>
+              <dd className="ledger-score-pair">
+                {(["player", "cpu"] as const).map((owner) => (
+                  <ScoreEvidenceButton
+                    key={owner}
+                    owner={owner}
+                    category={category}
+                    label={label}
+                    value={state.score[owner][category]}
+                    active={
+                      inspection?.owner === owner &&
+                      inspection.category === category
+                    }
+                    onInspect={onInspect}
+                  />
+                ))}
+              </dd>
+            </div>
+          ))}
         </dl>
       </section>
 

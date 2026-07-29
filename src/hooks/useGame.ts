@@ -13,7 +13,11 @@ import {
   saveCpuDifficulty,
   saveLastSeed,
 } from "../game/storage";
-import type { CpuDifficulty, LifetimeStats } from "../game/types";
+import type {
+  CpuDifficulty,
+  LifetimeStats,
+  ScoreInspection,
+} from "../game/types";
 
 const BOOT_SEED = "topology-boot";
 const EMPTY_SESSION_STATS: LifetimeStats = {
@@ -129,6 +133,7 @@ export function useGame() {
       }
       if (event.key === "Escape") {
         dispatch({ type: "SELECT_NODE", nodeId: null });
+        dispatch({ type: "SET_SCORE_INSPECTION", inspection: null });
         (document.activeElement as HTMLElement | null)?.blur();
       }
     };
@@ -145,6 +150,8 @@ export function useGame() {
     restart,
     setCpuDifficulty: (difficulty: CpuDifficulty) =>
       dispatch({ type: "SET_CPU_DIFFICULTY", difficulty }),
+    inspectScore: (inspection: ScoreInspection | null) =>
+      dispatch({ type: "SET_SCORE_INSPECTION", inspection }),
     selectNode: (nodeId: string | null) =>
       dispatch({ type: "SELECT_NODE", nodeId }),
   };
