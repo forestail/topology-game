@@ -10,6 +10,7 @@ import type {
   ScoreEvidence,
   ScoreInspection,
   TerrainType,
+  Winner,
 } from "../game/types";
 import { EdgeView } from "./EdgeView";
 import { NodeView } from "./NodeView";
@@ -24,6 +25,7 @@ interface BoardProps {
   cpuDifficulty: CpuDifficulty;
   scoreInspection: ScoreInspection | null;
   terrain: TerrainType;
+  winner: Winner;
   terrainUnderlayVisible: boolean;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
@@ -82,6 +84,7 @@ export function Board({
   cpuDifficulty,
   scoreInspection,
   terrain,
+  winner,
   terrainUnderlayVisible,
   onClaim,
   onSelect,
@@ -174,7 +177,9 @@ export function Board({
             </select>
           </label>
           <span
-            className={`phase-pill phase-${phase}`}
+            className={`phase-pill phase-${phase}${
+              phase === "finished" ? ` phase-result-${winner}` : ""
+            }`}
             role="status"
             aria-live="polite"
           >
@@ -183,7 +188,11 @@ export function Board({
               ? "Your turn"
               : phase === "cpuThinking"
                 ? "CPU evaluating"
-                : "Analysis complete"}
+                : winner === "player"
+                  ? "Victory"
+                  : winner === "cpu"
+                    ? "CPU wins"
+                    : "Draw"}
           </span>
         </div>
       </div>

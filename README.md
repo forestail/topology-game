@@ -66,6 +66,9 @@ The previous Sites-compatible application remains available through
   routes earn no additional route bonus.
 - Base, connection, influence, and longest-route points are added after every
   move. The higher final total wins.
+- At the end of a game, a result screen makes the winner and final score
+  immediately visible. Player victories include a short celebration; reduced
+  motion preferences disable the animation.
 
 Node shapes do not rely on color: Normal is a circle, Hub is a double circle,
 and Relay is a square with a center point. Player claims use a solid `P`; CPU

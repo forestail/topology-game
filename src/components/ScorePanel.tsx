@@ -75,8 +75,14 @@ export function ScorePanel({
 
   return (
     <aside className="score-panel" aria-label="Game status">
-      <section className="outcome-block">
-        <p className="section-kicker">Live analysis</p>
+      <section
+        className={`outcome-block${
+          state.phase === "finished" ? ` outcome-${state.winner}` : ""
+        }`}
+      >
+        <p className="section-kicker">
+          {state.phase === "finished" ? "Final result" : "Live analysis"}
+        </p>
         <h2>
           {state.phase === "finished"
             ? state.winner === "draw"

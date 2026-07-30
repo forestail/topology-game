@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Board } from "./components/Board";
 import { GameHeader } from "./components/GameHeader";
 import { HelpModal, type HelpMode } from "./components/HelpModal";
+import { ResultCelebration } from "./components/ResultCelebration";
 import { ScorePanel } from "./components/ScorePanel";
 import {
   hasSeenTutorial,
@@ -76,6 +77,7 @@ export default function App() {
           cpuDifficulty={state.cpuDifficulty}
           scoreInspection={state.scoreInspection}
           terrain={state.terrain}
+          winner={state.winner}
           terrainUnderlayVisible={terrainUnderlayVisible}
           onClaim={claimNode}
           onSelect={selectNode}
@@ -101,6 +103,16 @@ export default function App() {
           onTutorialStepChange={setTutorialStep}
           onStartTutorial={startTutorial}
           onClose={closeHelp}
+        />
+      )}
+      {state.phase === "finished" && state.winner && (
+        <ResultCelebration
+          active={!helpMode}
+          winner={state.winner}
+          playerScore={state.score.player.total}
+          cpuScore={state.score.cpu.total}
+          onRestart={restart}
+          onNewGame={newGame}
         />
       )}
     </main>
