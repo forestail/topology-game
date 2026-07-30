@@ -76,8 +76,10 @@ Select the score again, choose **Clear**, or press `Esc` to exit the explanation
   separate modules.
 - The seeded PRNG makes node positions, roles, graph edges, and terrain
   reproducible.
-- Every seed selects one of five strategic terrain families: archipelago,
-  hourglass, ring routes, spine, or core-and-satellites.
+- Every seed selects one of fifteen strategic terrain families. The original
+  archipelago, hourglass, ring routes, spine, and core are joined by twin
+  domains, delta, ladder, crossroads, fortress, river banks, trident,
+  constellation, crescent, and layered basin layouts.
 - Ten candidates are generated for that terrain and scored for connectivity,
   cycles, bottlenecks, junction variety, leaves, and excessive edge length.
   The strongest candidate becomes the board.

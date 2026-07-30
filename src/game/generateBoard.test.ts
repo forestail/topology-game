@@ -16,7 +16,35 @@ const TERRAINS: TerrainType[] = [
   "ring",
   "spine",
   "core",
+  "twin",
+  "delta",
+  "ladder",
+  "crossroads",
+  "fortress",
+  "river",
+  "trident",
+  "constellation",
+  "crescent",
+  "basin",
 ];
+
+const EXPECTED_PROFILE = {
+  archipelago: { edges: 32, bridges: 2 },
+  hourglass: { edges: 31, bridges: 2 },
+  ring: { edges: 35, bridges: 0 },
+  spine: { edges: 30, bridges: 5 },
+  core: { edges: 33, bridges: 3 },
+  twin: { edges: 34, bridges: 1 },
+  delta: { edges: 30, bridges: 3 },
+  ladder: { edges: 34, bridges: 0 },
+  crossroads: { edges: 31, bridges: 4 },
+  fortress: { edges: 36, bridges: 0 },
+  river: { edges: 32, bridges: 0 },
+  trident: { edges: 28, bridges: 3 },
+  constellation: { edges: 31, bridges: 5 },
+  crescent: { edges: 30, bridges: 0 },
+  basin: { edges: 35, bridges: 0 },
+} satisfies Record<TerrainType, { edges: number; bridges: number }>;
 
 function isConnected(board: GeneratedBoard): boolean {
   const seen = new Set<string>([board.nodes[0].id]);
@@ -83,9 +111,9 @@ describe("generateBoard", () => {
     }
   });
 
-  it("uses all five terrain families across seeds", () => {
+  it("uses all fifteen terrain families across seeds", () => {
     const terrains = new Set<TerrainType>();
-    for (let seedIndex = 0; seedIndex < 100; seedIndex += 1) {
+    for (let seedIndex = 0; seedIndex < 300; seedIndex += 1) {
       terrains.add(generateBoard(`terrain-sample-${seedIndex}`).terrain);
     }
     expect(terrains).toEqual(new Set(TERRAINS));
@@ -144,18 +172,18 @@ describe("generateBoard", () => {
     expect(topology.hourglass.bridgeIds).toHaveLength(2);
     expect(topology.spine.bridgeIds.length).toBeGreaterThanOrEqual(5);
     expect(topology.core.bridgeIds).toHaveLength(3);
-    expect(topology.ring.cycleCount).toBeGreaterThan(topology.spine.cycleCount);
+    expect(topology.twin.bridgeIds).toHaveLength(1);
+    expect(topology.crossroads.bridgeIds).toHaveLength(4);
+    expect(topology.constellation.bridgeIds).toHaveLength(5);
+    expect(topology.fortress.bridgeIds).toHaveLength(0);
+    expect(topology.river.bridgeIds).toHaveLength(0);
+    expect(topology.basin.bridgeIds).toHaveLength(0);
+    expect(topology.fortress.cycleCount).toBeGreaterThan(
+      topology.trident.cycleCount,
+    );
   });
 
   it("preserves each terrain's route and bottleneck profile across seeds", () => {
-    const expected = {
-      archipelago: { edges: 32, bridges: 2 },
-      hourglass: { edges: 31, bridges: 2 },
-      ring: { edges: 35, bridges: 0 },
-      spine: { edges: 30, bridges: 5 },
-      core: { edges: 33, bridges: 3 },
-    } satisfies Record<TerrainType, { edges: number; bridges: number }>;
-
     for (const terrain of TERRAINS) {
       for (let seedIndex = 0; seedIndex < 12; seedIndex += 1) {
         const board = generateBoard(
@@ -163,15 +191,19 @@ describe("generateBoard", () => {
           terrain,
         );
         const topology = analyzeTopology(board.nodes, board.edges);
-        expect(board.edges).toHaveLength(expected[terrain].edges);
-        expect(topology.bridgeIds).toHaveLength(expected[terrain].bridges);
+        expect(board.edges).toHaveLength(EXPECTED_PROFILE[terrain].edges);
+        expect(topology.bridgeIds).toHaveLength(
+          EXPECTED_PROFILE[terrain].bridges,
+        );
         expect(isConnected(board)).toBe(true);
       }
     }
   });
 
   it("places a Relay on a bottleneck whenever the terrain has bridges", () => {
-    for (const terrain of TERRAINS.filter((value) => value !== "ring")) {
+    for (const terrain of TERRAINS.filter(
+      (value) => EXPECTED_PROFILE[value].bridges > 0,
+    )) {
       const board = generateBoard(`relay-${terrain}`, terrain);
       const bridgeIds = new Set(
         analyzeTopology(board.nodes, board.edges).bridgeIds,
@@ -190,9 +222,9 @@ describe("generateBoard", () => {
     }
   });
 
-  it("produces many distinct boards, not merely five fixed templates", () => {
+  it("produces many distinct boards, not merely fifteen fixed templates", () => {
     const fingerprints = new Set<string>();
-    for (let seedIndex = 0; seedIndex < 60; seedIndex += 1) {
+    for (let seedIndex = 0; seedIndex < 120; seedIndex += 1) {
       const board = generateBoard(`variety-${seedIndex}`);
       fingerprints.add(
         JSON.stringify({
@@ -206,6 +238,6 @@ describe("generateBoard", () => {
         }),
       );
     }
-    expect(fingerprints.size).toBeGreaterThanOrEqual(58);
+    expect(fingerprints.size).toBeGreaterThanOrEqual(118);
   });
 });

@@ -10,7 +10,17 @@ export type TerrainType =
   | "hourglass"
   | "ring"
   | "spine"
-  | "core";
+  | "core"
+  | "twin"
+  | "delta"
+  | "ladder"
+  | "crossroads"
+  | "fortress"
+  | "river"
+  | "trident"
+  | "constellation"
+  | "crescent"
+  | "basin";
 
 export interface ScoreInspection {
   owner: Turn;

@@ -34,6 +34,16 @@ const TERRAIN_LABELS: Record<TerrainType, string> = {
   ring: "環状路 / RING ROUTES",
   spine: "背骨 / SPINE",
   core: "中央核 / CORE",
+  twin: "双峰 / TWIN DOMAINS",
+  delta: "三角州 / DELTA",
+  ladder: "梯子 / LADDER",
+  crossroads: "十字路 / CROSSROADS",
+  fortress: "要塞 / FORTRESS",
+  river: "両岸 / RIVER BANKS",
+  trident: "三叉 / TRIDENT",
+  constellation: "星座 / CONSTELLATION",
+  crescent: "三日月 / CRESCENT",
+  basin: "多層盆地 / BASIN",
 };
 
 function evidenceDescription(evidence: ScoreEvidence): string {

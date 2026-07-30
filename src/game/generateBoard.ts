@@ -52,6 +52,8 @@ interface TerrainConfig {
   targetEdges: number;
   targetBridges: number;
   allowedLeaves: number;
+  crossingStyle: "bridged" | "open";
+  groupPattern: "clustered" | "chain" | "hub" | "free";
 }
 
 const TERRAIN_ORDER: TerrainType[] = [
@@ -60,14 +62,124 @@ const TERRAIN_ORDER: TerrainType[] = [
   "ring",
   "spine",
   "core",
+  "twin",
+  "delta",
+  "ladder",
+  "crossroads",
+  "fortress",
+  "river",
+  "trident",
+  "constellation",
+  "crescent",
+  "basin",
 ];
 
 const TERRAIN_CONFIG: Record<TerrainType, TerrainConfig> = {
-  archipelago: { targetEdges: 32, targetBridges: 2, allowedLeaves: 2 },
-  hourglass: { targetEdges: 31, targetBridges: 2, allowedLeaves: 2 },
-  ring: { targetEdges: 35, targetBridges: 0, allowedLeaves: 0 },
-  spine: { targetEdges: 30, targetBridges: 5, allowedLeaves: 3 },
-  core: { targetEdges: 33, targetBridges: 3, allowedLeaves: 2 },
+  archipelago: {
+    targetEdges: 32,
+    targetBridges: 2,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "clustered",
+  },
+  hourglass: {
+    targetEdges: 31,
+    targetBridges: 2,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "chain",
+  },
+  ring: {
+    targetEdges: 35,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "free",
+  },
+  spine: {
+    targetEdges: 30,
+    targetBridges: 5,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "chain",
+  },
+  core: {
+    targetEdges: 33,
+    targetBridges: 3,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "hub",
+  },
+  twin: {
+    targetEdges: 34,
+    targetBridges: 1,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "clustered",
+  },
+  delta: {
+    targetEdges: 30,
+    targetBridges: 3,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "hub",
+  },
+  ladder: {
+    targetEdges: 34,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "free",
+  },
+  crossroads: {
+    targetEdges: 31,
+    targetBridges: 4,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "hub",
+  },
+  fortress: {
+    targetEdges: 36,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "free",
+  },
+  river: {
+    targetEdges: 32,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "free",
+  },
+  trident: {
+    targetEdges: 28,
+    targetBridges: 3,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "hub",
+  },
+  constellation: {
+    targetEdges: 31,
+    targetBridges: 5,
+    allowedLeaves: 0,
+    crossingStyle: "bridged",
+    groupPattern: "hub",
+  },
+  crescent: {
+    targetEdges: 30,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "free",
+  },
+  basin: {
+    targetEdges: 35,
+    targetBridges: 0,
+    allowedLeaves: 0,
+    crossingStyle: "open",
+    groupPattern: "chain",
+  },
 };
 
 function distanceBetween(
@@ -103,6 +215,27 @@ function clusterPoints(
         centerY +
         Math.sin(angle) * radiusY * fraction +
         jitter(random, 17),
+      group,
+    };
+  });
+}
+
+function ringPoints(
+  centerX: number,
+  centerY: number,
+  count: number,
+  radiusX: number,
+  radiusY: number,
+  group: number,
+  random: RandomSource,
+  phaseOffset = 0,
+): TerrainPoint[] {
+  const phase = random() * Math.PI * 2 + phaseOffset;
+  return Array.from({ length: count }, (_, index) => {
+    const angle = phase + (index / count) * Math.PI * 2;
+    return {
+      x: centerX + Math.cos(angle) * (radiusX + jitter(random, 14)),
+      y: centerY + Math.sin(angle) * (radiusY + jitter(random, 12)),
       group,
     };
   });
@@ -215,6 +348,185 @@ function createCore(random: RandomSource): TerrainPoint[] {
   return [...core, ...satellites];
 }
 
+function createTwin(random: RandomSource): TerrainPoint[] {
+  return [
+    ...clusterPoints(
+      275 + jitter(random, 30),
+      320 + jitter(random, 35),
+      12,
+      155,
+      220,
+      0,
+      random,
+    ),
+    ...clusterPoints(
+      685 + jitter(random, 30),
+      320 + jitter(random, 35),
+      12,
+      155,
+      220,
+      1,
+      random,
+    ),
+  ];
+}
+
+function createDelta(random: RandomSource): TerrainPoint[] {
+  const centers = [
+    [480, 310],
+    [205, 145],
+    [755, 145],
+    [480, 515],
+  ];
+  return centers.flatMap(([x, y], group) =>
+    clusterPoints(
+      x + jitter(random, 24),
+      y + jitter(random, 20),
+      6,
+      group === 0 ? 105 : 92,
+      group === 0 ? 92 : 76,
+      group,
+      random,
+    ),
+  );
+}
+
+function createLadder(random: RandomSource): TerrainPoint[] {
+  const points: TerrainPoint[] = [];
+  for (let column = 0; column < 4; column += 1) {
+    for (let row = 0; row < 6; row += 1) {
+      points.push({
+        x: 205 + column * 183 + jitter(random, 20),
+        y: 90 + row * 92 + jitter(random, 14),
+        group: 0,
+      });
+    }
+  }
+  return points;
+}
+
+function createCrossroads(random: RandomSource): TerrainPoint[] {
+  const core = clusterPoints(480, 320, 4, 76, 68, 0, random);
+  const arms = [
+    [185, 320, 118, 82],
+    [775, 320, 118, 82],
+    [480, 120, 88, 104],
+    [480, 520, 88, 104],
+  ];
+  return [
+    ...core,
+    ...arms.flatMap(([x, y, radiusX, radiusY], index) =>
+      clusterPoints(
+        x + jitter(random, 18),
+        y + jitter(random, 18),
+        5,
+        radiusX,
+        radiusY,
+        index + 1,
+        random,
+      ),
+    ),
+  ];
+}
+
+function createFortress(random: RandomSource): TerrainPoint[] {
+  return [
+    ...ringPoints(480, 320, 16, 350, 238, 0, random),
+    ...ringPoints(480, 320, 8, 180, 122, 1, random, Math.PI / 8),
+  ];
+}
+
+function createRiver(random: RandomSource): TerrainPoint[] {
+  return [
+    ...ringPoints(
+      285 + jitter(random, 20),
+      320,
+      12,
+      105,
+      230,
+      0,
+      random,
+    ),
+    ...ringPoints(
+      675 + jitter(random, 20),
+      320,
+      12,
+      105,
+      230,
+      1,
+      random,
+      Math.PI / 12,
+    ),
+  ];
+}
+
+function createTrident(random: RandomSource): TerrainPoint[] {
+  const centers = [
+    [270, 320],
+    [650, 115],
+    [770, 320],
+    [650, 525],
+  ];
+  return centers.flatMap(([x, y], group) =>
+    clusterPoints(
+      x + jitter(random, 22),
+      y + jitter(random, 18),
+      6,
+      group === 0 ? 108 : 88,
+      group === 0 ? 138 : 76,
+      group,
+      random,
+    ),
+  );
+}
+
+function createConstellation(random: RandomSource): TerrainPoint[] {
+  const points = clusterPoints(480, 320, 4, 72, 66, 0, random);
+  const phase = random() * Math.PI * 2;
+  for (let arm = 0; arm < 5; arm += 1) {
+    const angle = phase + (arm / 5) * Math.PI * 2;
+    points.push(
+      ...clusterPoints(
+        480 + Math.cos(angle) * 315,
+        320 + Math.sin(angle) * 215,
+        4,
+        70,
+        62,
+        arm + 1,
+        random,
+      ),
+    );
+  }
+  return points;
+}
+
+function createCrescent(random: RandomSource): TerrainPoint[] {
+  const phase = random() * Math.PI * 2;
+  return Array.from({ length: 24 }, (_, index) => {
+    const angle = phase - Math.PI * 0.78 + (index / 23) * Math.PI * 1.56;
+    const radiusScale = 0.82 + Math.sin((index / 23) * Math.PI) * 0.2;
+    return {
+      x:
+        480 +
+        Math.cos(angle) * 355 * radiusScale +
+        jitter(random, 14),
+      y:
+        320 +
+        Math.sin(angle) * 245 * radiusScale +
+        jitter(random, 12),
+      group: 0,
+    };
+  });
+}
+
+function createBasin(random: RandomSource): TerrainPoint[] {
+  return [
+    ...ringPoints(480, 320, 12, 350, 238, 0, random),
+    ...ringPoints(480, 320, 8, 220, 148, 1, random, Math.PI / 8),
+    ...ringPoints(480, 320, 4, 92, 70, 2, random, Math.PI / 4),
+  ];
+}
+
 function createTerrainPoints(
   terrain: TerrainType,
   random: RandomSource,
@@ -225,6 +537,16 @@ function createTerrainPoints(
     ring: () => createRing(random),
     spine: () => createSpine(random),
     core: () => createCore(random),
+    twin: () => createTwin(random),
+    delta: () => createDelta(random),
+    ladder: () => createLadder(random),
+    crossroads: () => createCrossroads(random),
+    fortress: () => createFortress(random),
+    river: () => createRiver(random),
+    trident: () => createTrident(random),
+    constellation: () => createConstellation(random),
+    crescent: () => createCrescent(random),
+    basin: () => createBasin(random),
   };
   const points = creators[terrain]();
 
@@ -301,14 +623,12 @@ function pairPenalty(
   targetGroup: number,
 ): number {
   if (sourceGroup === targetGroup) return 0;
-  if (terrain === "archipelago") return 900;
-  if (terrain === "hourglass") {
+  const pattern = TERRAIN_CONFIG[terrain].groupPattern;
+  if (pattern === "clustered") return 900;
+  if (pattern === "chain") {
     return Math.abs(sourceGroup - targetGroup) === 1 ? 500 : 1_400;
   }
-  if (terrain === "spine") {
-    return Math.abs(sourceGroup - targetGroup) === 1 ? 450 : 1_300;
-  }
-  if (terrain === "core") {
+  if (pattern === "hub") {
     return sourceGroup === 0 || targetGroup === 0 ? 500 : 1_250;
   }
   return 0;
@@ -370,8 +690,10 @@ function isTacticalPair(
   sourceGroup: number,
   targetGroup: number,
 ): boolean {
-  if (terrain === "ring") return true;
-  return sourceGroup === targetGroup;
+  return (
+    TERRAIN_CONFIG[terrain].crossingStyle === "open" ||
+    sourceGroup === targetGroup
+  );
 }
 
 function generateEdges(
@@ -390,6 +712,7 @@ function generateEdges(
   const parents = nodes.map((_, index) => index);
   const usedPairs = new Set<string>();
   const edges: GameEdge[] = [];
+  const groupConnections: Array<[number, number]> = [];
 
   const addEdge = (pair: Pair): void => {
     const key = `${pair.sourceIndex}:${pair.targetIndex}`;
@@ -455,6 +778,32 @@ function generateEdges(
       degrees[pair.targetIndex] < MAX_DEGREE
     ) {
       connectPair(pair);
+      const sourceGroup = points[pair.sourceIndex].group;
+      const targetGroup = points[pair.targetIndex].group;
+      if (sourceGroup !== targetGroup) {
+        groupConnections.push([sourceGroup, targetGroup]);
+      }
+    }
+  }
+
+  // Open terrains receive a second route across every regional boundary.
+  // That converts mandatory bridges into contestable alternate crossings.
+  if (TERRAIN_CONFIG[terrain].crossingStyle === "open") {
+    for (const [firstGroup, secondGroup] of groupConnections) {
+      const alternate = pairs.find((pair) => {
+        const sourceGroup = points[pair.sourceIndex].group;
+        const targetGroup = points[pair.targetIndex].group;
+        const sameBoundary =
+          (sourceGroup === firstGroup && targetGroup === secondGroup) ||
+          (sourceGroup === secondGroup && targetGroup === firstGroup);
+        return (
+          sameBoundary &&
+          !usedPairs.has(`${pair.sourceIndex}:${pair.targetIndex}`) &&
+          degrees[pair.sourceIndex] < MAX_DEGREE &&
+          degrees[pair.targetIndex] < MAX_DEGREE
+        );
+      });
+      if (alternate) addEdge(alternate);
     }
   }
 
