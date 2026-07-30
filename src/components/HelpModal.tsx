@@ -141,7 +141,7 @@ function TutorialContent({ step }: { step: number }) {
         </div>
       </div>
       <p className="tutorial-note">
-        Nで新規ゲーム、Rで同じ盤面を再開、Escでハイライトを解除できます。
+        SEED欄へIDを貼り付けてLoadを押すと、その盤面を再現できます。Nで新規ゲーム、Rで同じ盤面を再開できます。
       </p>
     </>
   );
@@ -223,6 +223,7 @@ function RulesContent() {
         <h3>操作と補助機能</h3>
         <ul>
           <li>クリック、またはTab・矢印キー＋Enterでノードを取得。</li>
+          <li>SEED欄へコピーしたIDを入力し、EnterまたはLoadで同じ盤面を表示。</li>
           <li>SCORE LEDGERの点数を押すと、得点根拠を盤面に表示。</li>
           <li>CPU難易度はEasy・Standard・Hardから選択。</li>
           <li>Nで新規ゲーム、Rで同じseedを再開、Escで選択解除。</li>

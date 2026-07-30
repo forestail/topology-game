@@ -52,7 +52,9 @@ claims use a dashed, hatched `C`.
 - Press `Esc` to clear focus.
 - Press `N` for a new random game.
 - Press `R` to restart the current seed.
-- Use **Copy** to share a seed and **Reset** to reproduce its board.
+- Use **Copy** to share the active seed. Paste a seed into the **SEED** field
+  and press `Enter` or **Load** to reproduce its board. **Reset** restarts the
+  active seed from its first turn.
 - Use the **CPU** selector above the board to change difficulty. The selection
   applies to the next CPU move and is remembered on this device.
 - Use **ルール** in the header to open the complete Japanese rules guide.

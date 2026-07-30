@@ -40,6 +40,23 @@ describe("gameReducer", () => {
     expect(state.phase).toBe("playerTurn");
   });
 
+  it("loads a specified seed and reproduces its board", () => {
+    let state = createInitialGame("first-seed", "hard");
+    state = gameReducer(state, {
+      type: "PLAYER_CLAIM",
+      nodeId: state.nodes[0].id,
+    });
+    state = gameReducer(state, {
+      type: "NEW_GAME",
+      seed: "shared-seed-id",
+    });
+    const expected = createInitialGame("shared-seed-id", "hard");
+
+    expect(state).toEqual(expected);
+    expect(state.seed).toBe("shared-seed-id");
+    expect(state.cpuDifficulty).toBe("hard");
+  });
+
   it("stores score inspection and clears it after a move", () => {
     let state = createInitialGame("inspection-test");
     state = gameReducer(state, {

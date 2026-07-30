@@ -114,6 +114,11 @@ export function useGame() {
     dispatch({ type: "RESTART" });
   }, []);
 
+  const loadSeed = useCallback((seed: string) => {
+    recordedGameRef.current = null;
+    dispatch({ type: "NEW_GAME", seed });
+  }, []);
+
   const claimNode = useCallback((nodeId: string) => {
     dispatch({ type: "PLAYER_CLAIM", nodeId });
   }, []);
@@ -148,6 +153,7 @@ export function useGame() {
     claimNode,
     newGame,
     restart,
+    loadSeed,
     setCpuDifficulty: (difficulty: CpuDifficulty) =>
       dispatch({ type: "SET_CPU_DIFFICULTY", difficulty }),
     inspectScore: (inspection: ScoreInspection | null) =>

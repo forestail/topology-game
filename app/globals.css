@@ -128,12 +128,21 @@ h1 {
 }
 
 .seed-control {
+  position: relative;
   height: 40px;
-  max-width: 430px;
+  max-width: 540px;
   gap: 9px;
   padding: 0 6px 0 12px;
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+}
+
+.seed-control:focus-within {
+  border-color: var(--focus);
+}
+
+.seed-control.has-error {
+  border-color: var(--cpu);
 }
 
 .seed-label {
@@ -142,13 +151,33 @@ h1 {
   letter-spacing: 0.12em;
 }
 
-.seed-control code {
-  max-width: 170px;
-  overflow: hidden;
+.seed-control input {
+  width: 170px;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
   color: var(--ink-soft);
   font: 11px var(--mono);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.seed-control input::selection {
+  background: var(--player-soft);
+}
+
+.seed-error {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  width: max-content;
+  max-width: 260px;
+  padding: 6px 8px;
+  border: 1px solid var(--cpu);
+  background: var(--surface-raised);
+  color: var(--cpu);
+  font: 9px/1.4 var(--mono);
+  box-shadow: var(--shadow);
 }
 
 .icon-button,
@@ -1453,8 +1482,8 @@ footer {
     max-width: 320px;
   }
 
-  .seed-control code {
-    max-width: none;
+  .seed-control input {
+    width: auto;
     flex: 1;
   }
 
@@ -1503,6 +1532,10 @@ footer {
     gap: 8px;
   }
 
+  .brand-lockup > div {
+    display: none;
+  }
+
   .brand-mark {
     width: 30px;
     height: 30px;
@@ -1524,13 +1557,31 @@ footer {
   .seed-control {
     width: auto;
     height: 34px;
-    padding-left: 7px;
+    gap: 3px;
+    padding: 0 4px 0 7px;
   }
 
-  .seed-control code,
   .seed-label,
-  .seed-control .icon-button:first-of-type {
+  .seed-copy-button,
+  .seed-reset-button {
     display: none;
+  }
+
+  .seed-control input {
+    width: 78px;
+    flex: 0 1 78px;
+    font-size: 9px;
+  }
+
+  .seed-load-button {
+    min-height: 25px;
+    padding: 0 5px;
+    font-size: 8px;
+  }
+
+  .seed-error {
+    top: calc(100% + 4px);
+    max-width: 190px;
   }
 
   .primary-button {
@@ -1541,6 +1592,10 @@ footer {
   .help-button {
     height: 34px;
     padding: 0 8px;
+  }
+
+  .help-button b {
+    display: none;
   }
 
   .workspace {

@@ -20,6 +20,7 @@ export default function App() {
     claimNode,
     newGame,
     restart,
+    loadSeed,
     selectNode,
     setCpuDifficulty,
     inspectScore,
@@ -48,9 +49,11 @@ export default function App() {
   return (
     <main className="app-shell">
       <GameHeader
+        key={state.seed}
         seed={state.seed}
         onNewGame={newGame}
         onRestart={restart}
+        onLoadSeed={loadSeed}
         onOpenRules={() => setHelpMode("rules")}
       />
       <div className="workspace">
