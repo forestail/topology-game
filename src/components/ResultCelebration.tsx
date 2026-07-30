@@ -185,7 +185,7 @@ export function ResultCelebration({
             className="result-review"
             onClick={() => setVisible(false)}
           >
-            得点表を見る
+            最終得点の内訳を見る
           </button>
         </div>
       </div>
