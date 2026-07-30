@@ -21,6 +21,7 @@ export const STORAGE_KEYS = {
   stats: "topology:lifetimeStats",
   cpuDifficulty: "topology:cpuDifficulty",
   tutorialSeen: "topology:tutorialSeen",
+  terrainUnderlayVisible: "topology:terrainUnderlayVisible",
 } as const;
 
 export const EMPTY_STATS = {

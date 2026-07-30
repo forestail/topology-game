@@ -63,6 +63,28 @@ export function saveTutorialSeen(): void {
   }
 }
 
+export function loadTerrainUnderlayVisible(): boolean {
+  try {
+    return (
+      window.localStorage.getItem(STORAGE_KEYS.terrainUnderlayVisible) !==
+      "false"
+    );
+  } catch {
+    return true;
+  }
+}
+
+export function saveTerrainUnderlayVisible(visible: boolean): void {
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEYS.terrainUnderlayVisible,
+      String(visible),
+    );
+  } catch {
+    // Storage is optional; the active selection remains usable this session.
+  }
+}
+
 export function loadStats(): LifetimeStats {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.stats);

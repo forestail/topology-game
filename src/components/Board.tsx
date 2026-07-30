@@ -24,9 +24,11 @@ interface BoardProps {
   cpuDifficulty: CpuDifficulty;
   scoreInspection: ScoreInspection | null;
   terrain: TerrainType;
+  terrainUnderlayVisible: boolean;
   onClaim: (nodeId: string) => void;
   onSelect: (nodeId: string | null) => void;
   onDifficultyChange: (difficulty: CpuDifficulty) => void;
+  onToggleTerrainUnderlay: () => void;
   onClearScoreInspection: () => void;
 }
 
@@ -80,9 +82,11 @@ export function Board({
   cpuDifficulty,
   scoreInspection,
   terrain,
+  terrainUnderlayVisible,
   onClaim,
   onSelect,
   onDifficultyChange,
+  onToggleTerrainUnderlay,
   onClearScoreInspection,
 }: BoardProps) {
   const nodeMap = useMemo(() => getNodeMap(nodes), [nodes]);
@@ -141,6 +145,20 @@ export function Board({
           <h2 id="board-title">Control surface</h2>
         </div>
         <div className="board-controls">
+          <button
+            type="button"
+            className={`map-toggle${terrainUnderlayVisible ? " is-on" : ""}`}
+            aria-pressed={terrainUnderlayVisible}
+            aria-label={`戦術地図の背景を${terrainUnderlayVisible ? "非表示" : "表示"}にする`}
+            title={`戦術地図の背景を${terrainUnderlayVisible ? "非表示" : "表示"}にする`}
+            onClick={onToggleTerrainUnderlay}
+          >
+            <span className="map-toggle-track" aria-hidden="true">
+              <span />
+            </span>
+            <span>MAP</span>
+            <strong>{terrainUnderlayVisible ? "ON" : "OFF"}</strong>
+          </button>
           <label className="difficulty-control">
             <span>CPU</span>
             <select
@@ -214,12 +232,14 @@ export function Board({
               <line x1="0" y1="0" x2="0" y2="7" className="cpu-hatch" />
             </pattern>
           </defs>
-          <TerrainUnderlay
-            seed={seed}
-            terrain={terrain}
-            nodes={nodes}
-            dimmed={Boolean(evidence)}
-          />
+          {terrainUnderlayVisible && (
+            <TerrainUnderlay
+              seed={seed}
+              terrain={terrain}
+              nodes={nodes}
+              dimmed={Boolean(evidence)}
+            />
+          )}
           <g className="edges" aria-hidden="true">
             {edges.map((edge) => {
               const source = nodeMap.get(edge.sourceId);

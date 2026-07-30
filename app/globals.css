@@ -306,6 +306,60 @@ kbd {
   gap: 8px;
 }
 
+.map-toggle {
+  height: 31px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-faint);
+  font: 600 9px var(--mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.map-toggle:hover {
+  border-color: var(--line-strong);
+  color: var(--ink-soft);
+}
+
+.map-toggle:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus) 48%, transparent);
+  outline-offset: 1px;
+}
+
+.map-toggle strong {
+  min-width: 17px;
+  color: var(--ink);
+  font-size: 9px;
+}
+
+.map-toggle-track {
+  width: 21px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  padding: 1px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-muted);
+}
+
+.map-toggle-track > span {
+  width: 7px;
+  height: 7px;
+  background: var(--ink-faint);
+  transition:
+    translate 140ms ease,
+    background-color 140ms ease;
+}
+
+.map-toggle.is-on .map-toggle-track > span {
+  translate: 10px 0;
+  background: var(--player);
+}
+
 .difficulty-control {
   height: 31px;
   gap: 7px;
@@ -1630,6 +1684,32 @@ footer {
 
   .board-controls {
     gap: 5px;
+  }
+
+  .map-toggle {
+    height: 27px;
+    gap: 3px;
+    padding: 0 5px;
+    font-size: 7px;
+  }
+
+  .map-toggle strong {
+    min-width: 14px;
+    font-size: 7px;
+  }
+
+  .map-toggle-track {
+    width: 18px;
+    height: 10px;
+  }
+
+  .map-toggle-track > span {
+    width: 6px;
+    height: 6px;
+  }
+
+  .map-toggle.is-on .map-toggle-track > span {
+    translate: 8px 0;
   }
 
   .difficulty-control {

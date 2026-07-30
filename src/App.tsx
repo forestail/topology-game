@@ -7,6 +7,8 @@ import { HelpModal, type HelpMode } from "./components/HelpModal";
 import { ScorePanel } from "./components/ScorePanel";
 import {
   hasSeenTutorial,
+  loadTerrainUnderlayVisible,
+  saveTerrainUnderlayVisible,
   saveTutorialSeen,
 } from "./game/storage";
 import { useGame } from "./hooks/useGame";
@@ -14,6 +16,7 @@ import { useGame } from "./hooks/useGame";
 export default function App() {
   const [helpMode, setHelpMode] = useState<HelpMode | null>(null);
   const [tutorialStep, setTutorialStep] = useState(0);
+  const [terrainUnderlayVisible, setTerrainUnderlayVisible] = useState(true);
   const {
     state,
     stats,
@@ -28,6 +31,7 @@ export default function App() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
+      setTerrainUnderlayVisible(loadTerrainUnderlayVisible());
       if (!hasSeenTutorial()) {
         setTutorialStep(0);
         setHelpMode("tutorial");
@@ -45,6 +49,12 @@ export default function App() {
     setTutorialStep(0);
     setHelpMode("tutorial");
   }, []);
+
+  const toggleTerrainUnderlay = useCallback(() => {
+    const nextVisible = !terrainUnderlayVisible;
+    setTerrainUnderlayVisible(nextVisible);
+    saveTerrainUnderlayVisible(nextVisible);
+  }, [terrainUnderlayVisible]);
 
   return (
     <main className="app-shell">
@@ -66,9 +76,11 @@ export default function App() {
           cpuDifficulty={state.cpuDifficulty}
           scoreInspection={state.scoreInspection}
           terrain={state.terrain}
+          terrainUnderlayVisible={terrainUnderlayVisible}
           onClaim={claimNode}
           onSelect={selectNode}
           onDifficultyChange={setCpuDifficulty}
+          onToggleTerrainUnderlay={toggleTerrainUnderlay}
           onClearScoreInspection={() => inspectScore(null)}
         />
         <ScorePanel

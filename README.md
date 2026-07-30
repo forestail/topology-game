@@ -57,6 +57,8 @@ claims use a dashed, hatched `C`.
   active seed from its first turn.
 - Use the **CPU** selector above the board to change difficulty. The selection
   applies to the next CPU move and is remembered on this device.
+- Use **MAP ON / OFF** above the board to show or hide the decorative tactical
+  map. The preference is remembered on this device and does not affect play.
 - Use **ルール** in the header to open the complete Japanese rules guide.
 - A four-step Japanese tutorial opens automatically on the first visit. After
   dismissal it can be replayed from the rules guide at any time.
@@ -101,8 +103,8 @@ exit the explanation.
 - CPU decisions are deterministic for a game state except for seeded tie
   breaking. It values base points, friendly connections, Relay bonuses, Hub
   influence, and blocking Player connections.
-- The current seed, CPU difficulty, and lifetime results are stored in
-  `localStorage`. Storage failures never prevent play.
+- The current seed, CPU difficulty, tactical-map visibility, and lifetime
+  results are stored in `localStorage`. Storage failures never prevent play.
 - The interface responds down to 320 px widths and switches with the operating
   system’s light/dark preference.
 
