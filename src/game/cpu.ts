@@ -1,5 +1,9 @@
 import { NODE_BASE_POINTS } from "./constants";
-import { calculateScore, connectionValue } from "./scoring";
+import {
+  calculateScore,
+  connectionValue,
+  getLongestRoute,
+} from "./scoring";
 import type { CpuDifficulty, GameEdge, GameNode, Turn } from "./types";
 import type { RandomSource } from "./random";
 
@@ -46,6 +50,7 @@ export function evaluateCpuMoves(
     adjacent.get(source.id)?.push(target);
     adjacent.get(target.id)?.push(source);
   }
+  const currentRoute = getLongestRoute(nodes, edges, "cpu");
 
   return nodes
     .filter((node) => node.owner === null)
@@ -61,6 +66,14 @@ export function evaluateCpuMoves(
         (total, neighbor) => total + connectionValue(node, neighbor),
         0,
       );
+      const projectedRoute = getLongestRoute(
+        claimNode(nodes, node.id, "cpu"),
+        edges,
+        "cpu",
+      );
+      const routePointGain = projectedRoute.points - currentRoute.points;
+      const routeDistanceGain =
+        projectedRoute.distance - currentRoute.distance;
 
       const value =
         NODE_BASE_POINTS[node.type] * 3 +
@@ -70,6 +83,8 @@ export function evaluateCpuMoves(
         (node.type === "relay" ? 0.8 : 0) +
         connectionGain * 2 +
         blockedConnectionValue * 1.25 +
+        routePointGain * 3 +
+        routeDistanceGain * 0.45 +
         neighbors.length * 0.15;
 
       return { nodeId: node.id, value };

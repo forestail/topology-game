@@ -19,6 +19,7 @@ const SCORE_ROWS: Array<{ category: ScoreCategory; label: string }> = [
   { category: "base", label: "Base nodes" },
   { category: "connections", label: "Connections" },
   { category: "influence", label: "Influence" },
+  { category: "route", label: "Longest route" },
 ];
 
 interface ScoreEvidenceButtonProps {

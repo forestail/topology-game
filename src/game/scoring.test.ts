@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { calculateScore, getScoreEvidence } from "./scoring";
+import {
+  calculateScore,
+  getLongestRoute,
+  getScoreEvidence,
+} from "./scoring";
 import type { GameEdge, GameNode } from "./types";
 
 function node(
@@ -117,5 +121,83 @@ describe("calculateScore", () => {
     expect(evidence.targetNodeIds).toEqual(["target"]);
     expect(evidence.contributorNodeIds).toEqual(["hub"]);
     expect(evidence.edgeIds).toEqual(["hub-target"]);
+  });
+
+  it("scores only the single longest route", () => {
+    const nodes = [
+      ...["a", "b", "c", "d", "e", "f"].map((id) =>
+        node(id, "normal", "player"),
+      ),
+      ...["x", "y", "z", "w"].map((id) =>
+        node(id, "normal", "player"),
+      ),
+    ];
+    const edges = [
+      edge("a", "b"),
+      edge("b", "c"),
+      edge("c", "d"),
+      edge("d", "e"),
+      edge("e", "f"),
+      edge("x", "y"),
+      edge("y", "z"),
+      edge("z", "w"),
+    ];
+
+    const route = getLongestRoute(nodes, edges, "player");
+    const score = calculateScore(nodes, edges);
+
+    expect(route.distance).toBe(5);
+    expect(route.nodeIds).toEqual(["a", "b", "c", "d", "e", "f"]);
+    expect(route.edgeIds).toEqual(["a-b", "b-c", "c-d", "d-e", "e-f"]);
+    expect(score.player.route).toBe(2);
+  });
+
+  it("does not reuse a node when finding a route through a cycle", () => {
+    const nodes = ["a", "b", "c", "d"].map((id) =>
+      node(id, "normal", "cpu"),
+    );
+    const edges = [
+      edge("a", "b"),
+      edge("b", "c"),
+      edge("c", "d"),
+      edge("d", "a"),
+    ];
+
+    const route = getLongestRoute(nodes, edges, "cpu");
+
+    expect(route.distance).toBe(3);
+    expect(new Set(route.nodeIds).size).toBe(4);
+    expect(route.points).toBe(1);
+  });
+
+  it("caps the longest-route bonus at five points", () => {
+    const nodes = Array.from({ length: 12 }, (_, index) =>
+      node(`n${index}`, "normal", "player"),
+    );
+    const edges = Array.from({ length: 11 }, (_, index) =>
+      edge(`n${index}`, `n${index + 1}`),
+    );
+
+    expect(getLongestRoute(nodes, edges, "player").distance).toBe(11);
+    expect(calculateScore(nodes, edges).player.route).toBe(5);
+  });
+
+  it("highlights only the route used for the bonus", () => {
+    const nodes = ["a", "b", "c", "d", "x", "y", "z"].map((id) =>
+      node(id, "normal", "player"),
+    );
+    const edges = [
+      edge("a", "b"),
+      edge("b", "c"),
+      edge("c", "d"),
+      edge("x", "y"),
+      edge("y", "z"),
+    ];
+    const evidence = getScoreEvidence(nodes, edges, "player", "route");
+
+    expect(evidence.points).toBe(1);
+    expect(evidence.itemCount).toBe(3);
+    expect(evidence.nodeIds).toEqual(["a", "b", "c", "d"]);
+    expect(evidence.edgeIds).toEqual(["a-b", "b-c", "c-d"]);
   });
 });

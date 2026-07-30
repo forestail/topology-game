@@ -34,8 +34,11 @@ npm run build
   Adjacent Normal and Relay nodes contribute 1 influence; adjacent Hubs
   contribute 2. The side with more adjacent influence earns 1 point for that
   target. A tie earns neither side a point.
-- Base, connection, and influence points are added after every move. The higher
-  final total wins.
+- Each side's single longest route through owned nodes earns 1 point per two
+  edges, up to 5 points. A route cannot visit the same node twice, and shorter
+  routes earn no additional route bonus.
+- Base, connection, influence, and longest-route points are added after every
+  move. The higher final total wins.
 
 Node shapes do not rely on color: Normal is a circle, Hub is a double circle,
 and Relay is a square with a center point. Player claims use a solid `P`; CPU
@@ -64,10 +67,12 @@ CPU levels:
   strongest immediate reply.
 
 To understand a score, select the Player or CPU value beside **Base nodes**,
-**Connections**, or **Influence** in the Score ledger. The Network map dims
-unrelated locations and highlights the contributing nodes and links. Influence
-uses dashed rings for scoring targets and solid rings for contributing nodes.
-Select the score again, choose **Clear**, or press `Esc` to exit the explanation.
+**Connections**, **Influence**, or **Longest route** in the Score ledger. The
+Network map dims unrelated locations and highlights the contributing nodes and
+links. Longest route highlights only the one route used for its bonus.
+Influence uses dashed rings for scoring targets and solid rings for
+contributing nodes. Select the score again, choose **Clear**, or press `Esc` to
+exit the explanation.
 
 ## Design notes
 

@@ -4,7 +4,7 @@ import {
   evaluateCpuMoves,
   evaluateHardCpuMoves,
 } from "./cpu";
-import type { GameNode } from "./types";
+import type { GameEdge, GameNode } from "./types";
 
 function node(
   id: string,
@@ -12,6 +12,10 @@ function node(
   owner: GameNode["owner"] = null,
 ): GameNode {
   return { id, x: 0, y: 0, type, owner };
+}
+
+function edge(sourceId: string, targetId: string): GameEdge {
+  return { id: `${sourceId}-${targetId}`, sourceId, targetId };
 }
 
 describe("CPU", () => {
@@ -61,5 +65,17 @@ describe("CPU", () => {
         chooseCpuMove(nodes, [], () => 0, difficulty),
       ).not.toBe("owned");
     }
+  });
+
+  it("recognizes a move that extends the longest route", () => {
+    const nodes = [
+      node("a", "normal", "cpu"),
+      node("b", "normal", "cpu"),
+      node("route", "normal"),
+      node("isolated-hub", "hub"),
+    ];
+    const edges = [edge("a", "b"), edge("b", "route")];
+
+    expect(chooseCpuMove(nodes, edges, () => 0.5, "standard")).toBe("route");
   });
 });

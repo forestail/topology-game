@@ -591,6 +591,10 @@ kbd {
   stroke-dasharray: 2 2;
 }
 
+.score-evidence-route {
+  stroke-dasharray: 8 3;
+}
+
 .score-evidence-contributor {
   stroke-width: 2.5;
 }

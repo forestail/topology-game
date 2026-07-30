@@ -4,7 +4,11 @@ export type Turn = Exclude<Owner, null>;
 export type Phase = "playerTurn" | "cpuThinking" | "finished";
 export type Winner = Turn | "draw" | null;
 export type CpuDifficulty = "easy" | "standard" | "hard";
-export type ScoreCategory = "base" | "connections" | "influence";
+export type ScoreCategory =
+  | "base"
+  | "connections"
+  | "influence"
+  | "route";
 export type TerrainType =
   | "archipelago"
   | "hourglass"
@@ -62,6 +66,7 @@ export interface ScoreBreakdown {
   base: number;
   connections: number;
   influence: number;
+  route: number;
   total: number;
 }
 

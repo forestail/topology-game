@@ -55,7 +55,7 @@ function TutorialContent({ step }: { step: number }) {
           すべてのノードが埋まるまで交互に続けます。
         </p>
         <div className="guide-callout">
-          最後に「基本点＋接続点＋影響点」が高い側の勝利です。
+          最後に「基本点＋接続点＋影響点＋最長ルート」が高い側の勝利です。
         </div>
         <p className="tutorial-note">
           盤面は15種類の地形から生成されます。橋・迂回路・中央の要所が毎回変わるため、まず全体の形を観察しましょう。
@@ -79,7 +79,7 @@ function TutorialContent({ step }: { step: number }) {
   if (step === 2) {
     return (
       <>
-        <h2 id="help-title">得点は3種類の合計です</h2>
+        <h2 id="help-title">得点は4種類の合計です</h2>
         <div className="tutorial-score-list">
           <div>
             <span>01</span>
@@ -99,12 +99,19 @@ function TutorialContent({ step }: { step: number }) {
             <span>03</span>
             <p>
               <strong>影響点</strong>
-              各ノードの周囲で影響力を比較し、強い側が1点。
+              周囲の影響力を比較し、強い側が1点。Hubは2、ほかは1。
+            </p>
+          </div>
+          <div>
+            <span>04</span>
+            <p>
+              <strong>最長ルート</strong>
+              各陣営で最も長い1本だけを評価。線2本ごとに1点、最大5点。
             </p>
           </div>
         </div>
         <p className="tutorial-note">
-          影響力はNormal・Relayが1、Hubが2。同点ならどちらも得点しません。
+          最長ルートでは同じノードを2回通れず、2番目以下のルートはボーナス対象外です。
         </p>
       </>
     );
@@ -198,6 +205,12 @@ function RulesContent() {
             <dt>影響点</dt>
             <dd>
               各ノードについて隣接ノードの影響力を比較します。Normal・Relayは1、Hubは2。強い側に1点、同点なら0点です。取得済みノードも判定対象です。
+            </dd>
+          </div>
+          <div>
+            <dt>最長ルート</dt>
+            <dd>
+              各陣営の所有ノードだけで作れる最長の1ルートを評価します。同じノードは再利用できません。ルート上の線2本ごとに1点、最大5点。2番目以下のルートには加算されません。
             </dd>
           </div>
         </dl>

@@ -47,6 +47,9 @@ const TERRAIN_LABELS: Record<TerrainType, string> = {
 };
 
 function evidenceDescription(evidence: ScoreEvidence): string {
+  if (evidence.category === "route") {
+    return `${evidence.itemCount} links in the single longest route earn ${evidence.points} points. Every 2 links score 1, up to 5.`;
+  }
   if (evidence.points === 0) {
     return "No map locations currently contribute to this score.";
   }
@@ -63,6 +66,7 @@ const CATEGORY_LABELS = {
   base: "Base nodes",
   connections: "Connections",
   influence: "Influence",
+  route: "Longest route",
 } as const;
 
 export function Board({

@@ -76,7 +76,7 @@ export default function App() {
       </div>
       <footer>
         <span>Topology / Local simulation</span>
-        <span>Scoring: base + connected edges + adjacent influence</span>
+        <span>Scoring: base + connections + influence + longest route</span>
       </footer>
       {helpMode && (
         <HelpModal
