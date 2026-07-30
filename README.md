@@ -90,6 +90,10 @@ exit the explanation.
   The strongest candidate becomes the board.
 - Terrain-aware graph construction preserves meaningful bridges and alternate
   routes while keeping every node connected and degree four or lower.
+- A deterministic SVG tactical-map underlay visualizes each terrain family
+  with contours, sectors, routes, or waterways derived from the seed and node
+  geometry. It is decorative only and never participates in scoring or CPU
+  decisions.
 - Hub and Relay roles are structural rather than random: Hubs favor central
   high-degree nodes, while Relays favor bridges and junctions.
 - CPU decisions are deterministic for a game state except for seeded tie

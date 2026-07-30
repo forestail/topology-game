@@ -13,8 +13,10 @@ import type {
 } from "../game/types";
 import { EdgeView } from "./EdgeView";
 import { NodeView } from "./NodeView";
+import { TerrainUnderlay } from "./TerrainUnderlay";
 
 interface BoardProps {
+  seed: string;
   nodes: GameNode[];
   edges: GameEdge[];
   phase: Phase;
@@ -70,6 +72,7 @@ const CATEGORY_LABELS = {
 } as const;
 
 export function Board({
+  seed,
   nodes,
   edges,
   phase,
@@ -211,6 +214,12 @@ export function Board({
               <line x1="0" y1="0" x2="0" y2="7" className="cpu-hatch" />
             </pattern>
           </defs>
+          <TerrainUnderlay
+            seed={seed}
+            terrain={terrain}
+            nodes={nodes}
+            dimmed={Boolean(evidence)}
+          />
           <g className="edges" aria-hidden="true">
             {edges.map((edge) => {
               const source = nodeMap.get(edge.sourceId);

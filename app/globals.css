@@ -410,8 +410,15 @@ kbd {
   min-height: 320px;
   overflow: hidden;
   background:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px),
+    linear-gradient(
+      color-mix(in srgb, var(--line) 52%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--line) 52%, transparent) 1px,
+      transparent 1px
+    ),
     var(--surface);
   background-size: 8.333% 12.5%;
 }
@@ -421,6 +428,99 @@ kbd {
   height: 100%;
   display: block;
   padding: 22px 28px 20px 34px;
+}
+
+.terrain-underlay {
+  color: var(--ink-soft);
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 140ms ease;
+}
+
+.terrain-underlay.is-dimmed {
+  opacity: 0.25;
+}
+
+.terrain-region {
+  stroke: none;
+  fill: currentColor;
+  opacity: 0.065;
+}
+
+.terrain-region-zone {
+  opacity: 0.28;
+}
+
+.terrain-region-urban {
+  opacity: 0.085;
+}
+
+.terrain-region-water {
+  opacity: 0.055;
+}
+
+.terrain-hatch-line {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.17;
+  vector-effect: non-scaling-stroke;
+}
+
+.terrain-line,
+.terrain-ellipse {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.15;
+  vector-effect: non-scaling-stroke;
+}
+
+.terrain-line-contour,
+.terrain-ellipse-contour {
+  opacity: 0.13;
+}
+
+.terrain-line-boundary {
+  stroke-dasharray: 8 5;
+  opacity: 0.15;
+}
+
+.terrain-line-water {
+  stroke-width: 1.35;
+  opacity: 0.15;
+}
+
+.terrain-line-route {
+  stroke-dasharray: 11 5 2 5;
+  opacity: 0.16;
+}
+
+.terrain-line-minor {
+  stroke-dasharray: 3 5;
+  opacity: 0.1;
+}
+
+.terrain-ellipse-zone {
+  fill: currentColor;
+  fill-opacity: 0.035;
+  opacity: 0.14;
+}
+
+.terrain-ellipse-urban {
+  fill: currentColor;
+  fill-opacity: 0.055;
+  stroke-dasharray: 3 3;
+  opacity: 0.16;
+}
+
+.terrain-label {
+  fill: currentColor;
+  font: 600 7px var(--mono);
+  letter-spacing: 0.14em;
+  opacity: 0.22;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 2.5px;
+  vector-effect: non-scaling-stroke;
 }
 
 .board-axis {
@@ -1510,6 +1610,20 @@ footer {
 
   .board {
     padding: 8px 11px 9px 14px;
+  }
+
+  .terrain-underlay {
+    opacity: 0.72;
+  }
+
+  .terrain-underlay.is-dimmed {
+    opacity: 0.16;
+  }
+
+  .terrain-labels,
+  .terrain-line-minor,
+  .terrain-ellipses .terrain-ellipse-contour:nth-child(even) {
+    display: none;
   }
 
   .board-axis,

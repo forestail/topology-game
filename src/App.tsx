@@ -55,6 +55,7 @@ export default function App() {
       />
       <div className="workspace">
         <Board
+          seed={state.seed}
           nodes={state.nodes}
           edges={state.edges}
           phase={state.phase}
