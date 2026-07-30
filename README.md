@@ -2,7 +2,8 @@
 
 Topology is a quiet, single-player territory game designed for a three-to-five
 minute break. Claim nodes on a seeded network, build valuable connections, and
-compete with a lightweight CPU for influence.
+compete with a lightweight CPU for influence. The production build is a fully
+static React/Vite site for Cloudflare Pages.
 
 ## Run locally
 
@@ -22,6 +23,32 @@ npm run test
 npm run lint
 npm run build
 ```
+
+`npm run build` writes the static site to `dist/`. You can verify the production
+output locally with:
+
+```bash
+npm run preview
+```
+
+## Deploy to Cloudflare Pages
+
+Connect the GitHub repository
+[`forestail/topology-game`](https://github.com/forestail/topology-game) from
+**Workers & Pages → Create application → Pages → Connect to Git**, then use:
+
+- Framework preset: **React (Vite)**
+- Production branch: **main**
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Root directory: leave blank
+
+No environment variables, Pages Functions, databases, or other runtime
+bindings are required. Every push to `main` can therefore produce a static
+production deployment, while other branches can use Pages preview deployments.
+
+The previous Sites-compatible application remains available through
+`npm run build:sites`; it is not used by the Cloudflare Pages build.
 
 ## Rules
 
