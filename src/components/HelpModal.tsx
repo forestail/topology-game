@@ -141,7 +141,10 @@ function TutorialContent({ step }: { step: number }) {
         </div>
       </div>
       <p className="tutorial-note">
-        MAPボタンで背景の戦術地図を非表示にできます。SEED欄へIDを貼り付けてLoadを押すと、その盤面を再現できます。Nで新規ゲーム、Rで同じ盤面を再開できます。
+        Playerが敗北した場合は、結果画面の「敗因を分析」から、得点差の大きかった項目とNETWORK MAP上の根拠を確認できます。
+      </p>
+      <p className="tutorial-note">
+        MAPボタンで背景の戦術地図を非表示にできます。SEED欄へIDを貼り付けてLoadを押すと、その盤面を再現できます。
       </p>
     </>
   );
@@ -226,6 +229,9 @@ function RulesContent() {
           <li>SEED欄へコピーしたIDを入力し、EnterまたはLoadで同じ盤面を表示。</li>
           <li>MAPボタンで装飾用の戦術地図背景を表示・非表示。</li>
           <li>SCORE LEDGERの点数を押すと、得点根拠を盤面に表示。</li>
+          <li>
+            Playerが敗北した場合は、「敗因を分析」から得点差の大きかった項目と盤面上の根拠を確認。
+          </li>
           <li>CPU難易度はEasy・Standard・Hardから選択。</li>
           <li>Nで新規ゲーム、Rで同じseedを再開、Escで選択解除。</li>
         </ul>

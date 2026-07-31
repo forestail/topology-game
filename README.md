@@ -69,6 +69,11 @@ The previous Sites-compatible application remains available through
 - At the end of a game, a result screen makes the winner and final score
   immediately visible. Player victories include a short celebration; reduced
   motion preferences disable the animation.
+- After a Player defeat, **敗因を分析** compares all four score categories,
+  identifies the largest observed gaps, summarizes board facts such as Hub,
+  Relay, influence, route, and network-component differences, and reuses the
+  existing Network map evidence highlights. It does not alter scoring or CPU
+  decisions.
 
 Node shapes do not rely on color: Normal is a circle, Hub is a double circle,
 and Relay is a square with a center point. Player claims use a solid `P`; CPU

@@ -1,9 +1,9 @@
 import {
   useEffect,
   useRef,
-  useState,
   type CSSProperties,
 } from "react";
+import { canAnalyzeLoss } from "../game/lossAnalysis";
 import { getResultPresentation } from "../game/resultPresentation";
 import type { Winner } from "../game/types";
 
@@ -17,6 +17,8 @@ interface ResultCelebrationProps {
   cpuScore: number;
   onRestart: () => void;
   onNewGame: () => void;
+  onDismiss: () => void;
+  onAnalyzeLoss?: () => void;
 }
 
 const VICTORY_PARTICLES = Array.from({ length: 28 }, (_, index) => {
@@ -45,16 +47,17 @@ export function ResultCelebration({
   cpuScore,
   onRestart,
   onNewGame,
+  onDismiss,
+  onAnalyzeLoss,
 }: ResultCelebrationProps) {
-  const [visible, setVisible] = useState(true);
   const dialogRef = useRef<HTMLDivElement>(null);
   const primaryButtonRef = useRef<HTMLButtonElement>(null);
   const presentation = getResultPresentation(winner, playerScore, cpuScore);
   const isVictory = presentation.tone === "victory";
-  const isOpen = visible && active;
+  const showLossAnalysis = canAnalyzeLoss(winner) && Boolean(onAnalyzeLoss);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!active) return;
 
     const previousFocus = document.activeElement as HTMLElement | null;
     const originalOverflow = document.body.style.overflow;
@@ -67,7 +70,7 @@ export function ResultCelebration({
     const handleKeyDown = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
         event.preventDefault();
-        setVisible(false);
+        onDismiss();
         return;
       }
       if (event.key !== "Tab" || !dialogRef.current) return;
@@ -96,9 +99,9 @@ export function ResultCelebration({
       document.body.style.overflow = originalOverflow;
       previousFocus?.focus();
     };
-  }, [isOpen]);
+  }, [active, onDismiss]);
 
-  if (!isOpen) return null;
+  if (!active) return null;
 
   const primaryAction =
     presentation.tone === "defeat" ? onRestart : onNewGame;
@@ -133,7 +136,7 @@ export function ResultCelebration({
           type="button"
           className="result-close"
           aria-label="結果表示を閉じる"
-          onClick={() => setVisible(false)}
+          onClick={onDismiss}
         >
           ×
         </button>
@@ -165,10 +168,21 @@ export function ResultCelebration({
         </div>
 
         <div className="result-actions">
+          {showLossAnalysis && (
+            <button
+              ref={primaryButtonRef}
+              type="button"
+              className="result-analyze"
+              onClick={onAnalyzeLoss}
+            >
+              <strong>敗因を分析</strong>
+              <span>得点差と盤面上の根拠を確認</span>
+            </button>
+          )}
           <button
-            ref={primaryButtonRef}
+            ref={showLossAnalysis ? undefined : primaryButtonRef}
             type="button"
-            className="result-primary"
+            className={showLossAnalysis ? "result-secondary" : "result-primary"}
             onClick={primaryAction}
           >
             {presentation.primaryLabel}
@@ -183,7 +197,7 @@ export function ResultCelebration({
           <button
             type="button"
             className="result-review"
-            onClick={() => setVisible(false)}
+            onClick={onDismiss}
           >
             最終得点の内訳を見る
           </button>

@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Board } from "./components/Board";
+import { EndgameExperience } from "./components/EndgameExperience";
 import { GameHeader } from "./components/GameHeader";
 import { HelpModal, type HelpMode } from "./components/HelpModal";
-import { ResultCelebration } from "./components/ResultCelebration";
 import { ScorePanel } from "./components/ScorePanel";
 import {
   hasSeenTutorial,
@@ -106,13 +106,12 @@ export default function App() {
         />
       )}
       {state.phase === "finished" && state.winner && (
-        <ResultCelebration
+        <EndgameExperience
           active={!helpMode}
-          winner={state.winner}
-          playerScore={state.score.player.total}
-          cpuScore={state.score.cpu.total}
+          state={state}
           onRestart={restart}
           onNewGame={newGame}
+          onInspect={inspectScore}
         />
       )}
     </main>
